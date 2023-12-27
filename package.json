@@ -1,0 +1,23 @@
+{
+  "name": "pathfinding",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "@types/earcut": "^2.1.4",
+    "@types/three": "^0.160.0",
+    "typescript": "^5.2.2",
+    "vite": "^5.0.8"
+  },
+  "dependencies": {
+    "earcut": "^2.2.4",
+    "polygon-clipping": "^0.15.7",
+    "stats.js": "^0.17.0",
+    "three": "^0.160.0"
+  }
+}
