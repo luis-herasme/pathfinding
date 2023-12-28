@@ -26,7 +26,7 @@ class Path<NodeID, NodePosition> {
     this.end = end;
     this.path = path;
     this.graph = graph;
-    this.update(new Set());
+    this.update();
   }
 
   update() {
@@ -69,7 +69,6 @@ export class PathfindingSystem<NodeID, NodePosition> {
   private running = false;
   private currentPathId = 0;
   private updatePeriod = 100;
-  private invalidNodes: Set<NodeID> = new Set();
   private updateIntervalId: number | null = null;
   private heuristic: (start: NodePosition, end: NodePosition) => number;
   // private checkNode: (position: NodePosition) => boolean;
@@ -138,7 +137,7 @@ export class PathfindingSystem<NodeID, NodePosition> {
     // this.invalidNodes = this.checkForInvalidNodes();
 
     for (let path of this.paths.values()) {
-      path.update(this.invalidNodes);
+      path.update();
     }
   }
 

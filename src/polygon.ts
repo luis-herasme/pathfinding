@@ -1,5 +1,4 @@
 import { Box2D } from "./box";
-import PolygonClipping from "polygon-clipping";
 
 type Point = [number, number];
 
@@ -58,13 +57,5 @@ export class Polygon {
       [x + width, y + height],
       [x, y + height],
     ]);
-  }
-
-  static merge(polygons: Polygon[]): Polygon[] {
-    const result = PolygonClipping.union(
-      polygons.map((polygon) => [polygon.vertices])
-    );
-
-    return result.map((polygon) => new Polygon(polygon[0]));
   }
 }

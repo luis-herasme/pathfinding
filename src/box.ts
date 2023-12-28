@@ -1,5 +1,3 @@
-import { Point2D } from "./point";
-
 export class Box2D {
   x: number;
   y: number;
@@ -13,7 +11,7 @@ export class Box2D {
     this.height = height;
   }
 
-  containsPoint(point: Point2D) {
+  containsPoint(point: { x: number; y: number }) {
     return (
       point.x >= this.x &&
       point.x <= this.x + this.width &&
@@ -43,5 +41,14 @@ export class Box2D {
       left: this.x < boxes.x + boxes.width && this.x > boxes.x,
       right: this.x + this.width > boxes.x && this.x + this.width < boxes.x,
     };
+  }
+
+  getVertices(): [number, number][] {
+    return [
+      [this.x, this.y],
+      [this.x + this.width, this.y],
+      [this.x + this.width, this.y + this.height],
+      [this.x, this.y + this.height],
+    ];
   }
 }

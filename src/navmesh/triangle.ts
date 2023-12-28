@@ -1,16 +1,17 @@
-import * as THREE from "three";
+import earcut from "earcut";
+import { Vector2 } from "../vector";
 
 export type Triangle = {
   i1: number;
   i2: number;
   i3: number;
-  a: THREE.Vector3;
-  b: THREE.Vector3;
-  c: THREE.Vector3;
-  center: THREE.Vector3;
+  a: Vector2;
+  b: Vector2;
+  c: Vector2;
+  center: Vector2;
 };
 
-export function getTriangles(indices: number[], data: number[]): Triangle[] {
+function getTriangles(indices: number[], data: number[]): Triangle[] {
   const triangles: Triangle[] = [];
 
   for (let i = 0; i < indices.length; i += 3) {
@@ -22,16 +23,16 @@ export function getTriangles(indices: number[], data: number[]): Triangle[] {
       i1: a,
       i2: b,
       i3: c,
-      a: new THREE.Vector3(data[a * 2], 0.5, data[a * 2 + 1]),
-      b: new THREE.Vector3(data[b * 2], 0.5, data[b * 2 + 1]),
-      c: new THREE.Vector3(data[c * 2], 0.5, data[c * 2 + 1]),
-      center: new THREE.Vector3(),
+      a: new Vector2(data[a * 2], data[a * 2 + 1]),
+      b: new Vector2(data[b * 2], data[b * 2 + 1]),
+      c: new Vector2(data[c * 2], data[c * 2 + 1]),
+      center: new Vector2(0, 0),
     };
 
     triangle.center.add(triangle.a);
     triangle.center.add(triangle.b);
     triangle.center.add(triangle.c);
-    triangle.center.divideScalar(3);
+    triangle.center.divideByScalar(3);
 
     triangles.push(triangle);
   }
@@ -39,8 +40,8 @@ export function getTriangles(indices: number[], data: number[]): Triangle[] {
   return triangles;
 }
 
-export function getSharedVertices(t1: Triangle, t2: Triangle): THREE.Vector3[] {
-  const result: THREE.Vector3[] = [];
+export function getSharedVertices(t1: Triangle, t2: Triangle): Vector2[] {
+  const result: Vector2[] = [];
 
   if (t1.i1 === t2.i1 || t1.i1 === t2.i2 || t1.i1 === t2.i3) {
     result.push(t1.a);
@@ -55,4 +56,9 @@ export function getSharedVertices(t1: Triangle, t2: Triangle): THREE.Vector3[] {
   }
 
   return result;
+}
+
+export function triangulate(flatData: number[], holeIndices: number[]) {
+  const triangles = earcut(flatData, holeIndices);
+  return getTriangles(triangles, flatData);
 }
