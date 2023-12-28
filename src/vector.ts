@@ -33,6 +33,10 @@ export class Vector2 {
     );
   }
 
+  clone() {
+    return new Vector2(this.x, this.y);
+  }
+
   static random(scale: number): Vector2 {
     return new Vector2(
       (Math.random() - 0.5) * scale,

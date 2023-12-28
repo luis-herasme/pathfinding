@@ -44,11 +44,20 @@ export class Box2D {
   }
 
   getVertices(): [number, number][] {
+
+    // return [
+    //   [this.x, this.y],
+    //   [this.x + this.width, this.y],
+    //   [this.x + this.width, this.y + this.height],
+    //   [this.x, this.y + this.height],
+    // ];
+    const PADDING = 5;
+
     return [
-      [this.x, this.y],
-      [this.x + this.width, this.y],
-      [this.x + this.width, this.y + this.height],
-      [this.x, this.y + this.height],
+      [this.x + PADDING, this.y + PADDING],
+      [this.x + this.width - PADDING, this.y + PADDING],
+      [this.x + this.width - PADDING, this.y + this.height - PADDING],
+      [this.x + PADDING, this.y + this.height - PADDING],
     ];
   }
 }

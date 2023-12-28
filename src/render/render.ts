@@ -1,12 +1,7 @@
 import { Triangle } from "../navmesh/triangle";
 
-type Renderable = {
-  render(context: CanvasRenderingContext2D): void;
-};
-
 class Render {
   context: CanvasRenderingContext2D;
-  entities: Array<Renderable> = [];
   clearColor: string = "#FFFFFF";
   canvas: HTMLCanvasElement;
 
@@ -20,25 +15,7 @@ class Render {
     this.context = this.canvas.getContext("2d")!;
   }
 
-  start(): void {
-    this.init();
-    this.update();
-  }
-
-  add(entity: Renderable): void {
-    this.entities.push(entity);
-  }
-
-  update = () => {
-    this.clear();
-
-    for (let i = 0; i < this.entities.length; i++) {
-      const entity = this.entities[i];
-      entity.render(this.context);
-    }
-  };
-
-  private init(): void {
+  init(): void {
     if (document.readyState === "complete") {
       this.loadCanvas();
     } else {
@@ -46,7 +23,7 @@ class Render {
     }
   }
 
-  private clear(): void {
+  clear(): void {
     this.context.fillStyle = this.clearColor;
     this.context.fillRect(0, 0, window.innerWidth, window.innerHeight);
   }
@@ -90,18 +67,14 @@ class Render {
     context.fill();
   }
 
-  static drawTriangle(
-    context: CanvasRenderingContext2D,
-    triangle: Triangle,
-    color: string
-  ): void {
-    context.fillStyle = color;
-    context.beginPath();
-    context.moveTo(triangle.a.x, triangle.a.y);
-    context.lineTo(triangle.b.x, triangle.b.y);
-    context.lineTo(triangle.c.x, triangle.c.y);
-    context.closePath();
-    context.fill();
+  drawTriangle(triangle: Triangle, color: string): void {
+    this.context.fillStyle = color;
+    this.context.beginPath();
+    this.context.moveTo(triangle.a.x, triangle.a.y);
+    this.context.lineTo(triangle.b.x, triangle.b.y);
+    this.context.lineTo(triangle.c.x, triangle.c.y);
+    this.context.closePath();
+    this.context.fill();
   }
 }
 

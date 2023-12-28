@@ -1,14 +1,18 @@
-import { Box2D } from "./box";
-import { triangulate } from "./navmesh/triangle";
+import { World } from "./world";
 import Render from "./render/render";
+import { triangulate } from "./navmesh/triangle";
+import Stats from "stats.js";
 
+const stats = new Stats();
+stats.showPanel(0);
+document.body.appendChild(stats.dom);
 const render = new Render();
 
 const WORLD_BOUNDS = {
   minX: 0,
   minY: 0,
-  maxX: 1000,
-  maxY: 1000,
+  maxX: window.innerWidth,
+  maxY: window.innerHeight,
 };
 
 const WORLD_VERTICES = [
@@ -22,47 +26,45 @@ const WORLD_VERTICES = [
   WORLD_BOUNDS.maxY,
 ];
 
-const boxes: Box2D[] = [];
+const world = World.createRandomWorld({
+  worldBounds: WORLD_BOUNDS,
+  numberOfBodies: 600,
+});
 
-for (let i = 0; i < 3; i++) {
-  const x = Math.random() * 1000 - 50;
-  const y = Math.random() * 1000 - 50;
+function generateWorldMesh() {
+  const boxes = world.getBoxes();
+  const holeIndices: number[] = [];
+  let holeIndicesCount = WORLD_VERTICES.length / 2;
 
-  boxes.push(new Box2D(x, y, 50, 50));
+  for (let i = 0; i < boxes.length; i++) {
+    holeIndices.push(holeIndicesCount);
+    holeIndicesCount = holeIndicesCount + boxes[i].getVertices().length;
+  }
+
+  const holes = boxes.map((box) => box.getVertices().flat()).flat();
+  const flatData = [...WORLD_VERTICES, ...holes];
+  const triangles = triangulate(flatData, holeIndices);
+  return triangles;
 }
 
-const holeIndices: number[] = [];
-let holeIndicesCount = WORLD_VERTICES.length / 2;
+render.init();
 
-for (let i = 0; i < boxes.length; i++) {
-  holeIndices.push(holeIndicesCount);
-  holeIndicesCount = holeIndicesCount + boxes[i].getVertices().length;
+function update() {
+  stats.begin();
+  world.update();
+  render.clear();
+
+  const triangles = generateWorldMesh();
+
+  for (const triangle of triangles) {
+    const green = Math.round((255 * triangle.center.x) / WORLD_BOUNDS.maxX);
+    const blue = Math.round((255 * triangle.center.y) / WORLD_BOUNDS.maxY);
+    const color = `rgb(0, ${green}, ${blue})`;
+    render.drawTriangle(triangle, color);
+  }
+
+  stats.end();
+  requestAnimationFrame(update);
 }
 
-const holes = boxes.map((box) => box.getVertices().flat()).flat();
-const flatData = [...WORLD_VERTICES, ...holes];
-const triangles = triangulate(flatData, holeIndices);
-
-for (const triangle of triangles) {
-  render.add({
-    render(context) {
-      context.beginPath();
-
-      const green = Math.round((255 * triangle.center.x) / 1000);
-      const blue = Math.round((255 * triangle.center.y) / 1000);
-
-      context.fillStyle = `rgb(0, ${green}, ${blue})`;
-      context.strokeStyle = "#000000";
-
-      context.moveTo(triangle.a.x, triangle.a.y);
-      context.lineTo(triangle.b.x, triangle.b.y);
-      context.lineTo(triangle.c.x, triangle.c.y);
-      context.lineTo(triangle.a.x, triangle.a.y);
-
-      context.fill();
-      context.stroke();
-    },
-  });
-}
-
-render.start();
+update();
