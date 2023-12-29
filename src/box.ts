@@ -1,3 +1,5 @@
+import { Vector2 } from "./vector";
+
 export class Box2D {
   x: number;
   y: number;
@@ -9,6 +11,10 @@ export class Box2D {
     this.y = y;
     this.width = width;
     this.height = height;
+  }
+
+  get center(): Vector2 {
+    return new Vector2(this.x + this.width / 2, this.y + this.height / 2);
   }
 
   containsPoint(point: { x: number; y: number }) {
@@ -29,6 +35,15 @@ export class Box2D {
     );
   }
 
+  containsBox(box: Box2D) {
+    return (
+      this.x <= box.x &&
+      this.x + this.width >= box.x + box.width &&
+      this.y <= box.y &&
+      this.y + this.height >= box.y + box.height
+    );
+  }
+
   collisions(boxes: Box2D): {
     top: boolean;
     bottom: boolean;
@@ -44,7 +59,6 @@ export class Box2D {
   }
 
   getVertices(): [number, number][] {
-
     // return [
     //   [this.x, this.y],
     //   [this.x + this.width, this.y],

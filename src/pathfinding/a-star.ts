@@ -16,7 +16,7 @@ export function aStar<NodeID, NodePosition>({
   invalidNodes,
   heuristic,
 }: aStarOptions<NodeID, NodePosition>): NodeID[] | null {
-  if (!graph.has(start) || !graph.has(end)) {
+  if (!graph.get(start) || !graph.get(end)) {
     console.warn(`Start or end node does not exist in graph: ${start}, ${end}`);
     return null;
   }
@@ -42,26 +42,35 @@ export function aStar<NodeID, NodePosition>({
   gScore.set(start, 0);
   fScore.set(start, heuristic(graph.get(start)!.position, endNodePosition));
   openSet.enqueue(start, fScore.get(start)!);
+  const maxVisited = 10000
+  let visited = 0;
 
   while (!openSet.isEmpty()) {
-    const currentNode = openSet.dequeue()!.value;
+    visited++;
+    if (visited > maxVisited) {
+      return null;
+    }
+    const currentNodeID = openSet.dequeue()!.value;
 
-    if (currentNode === end) {
+    if (currentNodeID === end) {
       break;
     }
 
-    for (const neighbor of graph.get(currentNode)!.connections) {
+    const currentNode = graph.get(currentNodeID)!;
+    currentNode.visited = true;
+
+    for (const neighbor of currentNode.neighbors) {
       if (invalidNodes.has(neighbor.nodeId)) {
         continue;
       }
 
-      const tentativeGScore = gScore.get(currentNode)! + neighbor.weight;
+      const tentativeGScore = gScore.get(currentNodeID)! + neighbor.weight;
 
       if (
         !gScore.has(neighbor.nodeId) ||
         tentativeGScore < gScore.get(neighbor.nodeId)!
       ) {
-        previousNode.set(neighbor.nodeId, currentNode);
+        previousNode.set(neighbor.nodeId, currentNodeID);
         gScore.set(neighbor.nodeId, tentativeGScore);
 
         let hValue = hCache.get(neighbor.nodeId);

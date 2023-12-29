@@ -1,8 +1,10 @@
+import { Box2D } from "../box";
 import { Triangle } from "../navmesh/triangle";
+import { Vector2 } from "../vector";
 
 class Render {
   context: CanvasRenderingContext2D;
-  clearColor: string = "#FFFFFF";
+  clearColor: string = "#000";
   canvas: HTMLCanvasElement;
 
   constructor(
@@ -23,9 +25,34 @@ class Render {
     }
   }
 
+  translation: Vector2 = new Vector2(0, 0);
+
+  setTranslation(x: number, y: number): void {
+    const dx = x - this.translation.x;
+    const dy = y - this.translation.y;
+    this.translation.x += dx;
+    this.translation.y += dy;
+    this.context.translate(dx, dy);
+  }
+
+
+  // setTranslation(x: number, y: number): void {
+  //   // We need to keep all the previous transformations
+  //   // but with x and y as the translation
+  //   const { a, b, c, d } = this.context.getTransform();
+  //   this.context.setTransform(a, b, c, d, x, y);
+  // }
+
+  zoom(scale: number): void {
+    this.context.scale(scale, scale);
+  }
+
   clear(): void {
     this.context.fillStyle = this.clearColor;
+    this.context.save();
+    this.context.setTransform(1, 0, 0, 1, 0, 0);
     this.context.fillRect(0, 0, window.innerWidth, window.innerHeight);
+    this.context.restore();
   }
 
   private loadCanvas = () => {
@@ -38,16 +65,37 @@ class Render {
     this.canvas.height = window.innerHeight;
   };
 
-  static drawRect(
-    context: CanvasRenderingContext2D,
-    x: number,
-    y: number,
-    width: number,
-    height: number,
-    color: string
+  fillRect(bbox: Box2D, color: string): void {
+    this.context.fillStyle = color;
+    this.context.fillRect(bbox.x, bbox.y, bbox.width, bbox.height);
+  }
+
+  strokeRect(bbox: Box2D, color: string): void {
+    this.context.strokeStyle = color;
+    this.context.strokeRect(bbox.x, bbox.y, bbox.width, bbox.height);
+  }
+
+  fillCircle(x: number, y: number, radius: number, color: string): void {
+    this.context.fillStyle = color;
+    this.context.beginPath();
+    this.context.arc(x, y, radius, 0, 2 * Math.PI);
+    this.context.fill();
+  }
+
+  drawLine(
+    x1: number,
+    y1: number,
+    x2: number,
+    y2: number,
+    color: string,
+    lineWidth: number = 1
   ): void {
-    context.fillStyle = color;
-    context.fillRect(x, y, width, height);
+    this.context.strokeStyle = color;
+    this.context.lineWidth = lineWidth;
+    this.context.beginPath();
+    this.context.moveTo(x1, y1);
+    this.context.lineTo(x2, y2);
+    this.context.stroke();
   }
 
   static drawPolygon(

@@ -1,16 +1,13 @@
-export type Connection<NodeID, NodePosition> = {
-  nodeId: NodeID;
-  weight: number;
-  edge: {
-    a: NodePosition;
-    b: NodePosition;
-  };
+export type Node<NodeID, NodePosition> = {
+  visited: boolean;
+  //
+  position: NodePosition;
+  neighbors: {
+    nodeId: NodeID;
+    weight: number;
+  }[];
 };
 
-export type PathfindingGraph<NodeID, NodePosition> = Map<
-  NodeID,
-  {
-    position: NodePosition;
-    connections: Connection<NodeID, NodePosition>[];
-  }
->;
+export interface PathfindingGraph<NodeID, NodePosition> {
+  get(nodeId: NodeID): Node<NodeID, NodePosition> | null;
+}

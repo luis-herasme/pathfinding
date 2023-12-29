@@ -35,15 +35,15 @@ export class World {
       this.bodies[i].update();
     }
 
-    for (let i = 0; i < this.bodies.length; i++) {
-      for (let j = i + 1; j < this.bodies.length; j++) {
-        if (i === j) {
-          continue;
-        }
+    // for (let i = 0; i < this.bodies.length; i++) {
+    //   for (let j = i + 1; j < this.bodies.length; j++) {
+    //     if (i === j) {
+    //       continue;
+    //     }
 
-        this.bodies[i].collide(this.bodies[j]);
-      }
-    }
+    //     this.bodies[i].collide(this.bodies[j]);
+    //   }
+    // }
   }
 
   private checkThatBodyIsInsideWorldBounds() {
@@ -71,20 +71,23 @@ export class World {
   static createRandomWorld({
     worldBounds,
     numberOfBodies,
+    size,
+    velocity,
   }: {
     worldBounds: Bounds;
     numberOfBodies: number;
+    size: number;
+    velocity: number;
   }) {
-    const BODY_SIZE = 25;
     const bodies: Body[] = [];
 
     for (let i = 0; i < numberOfBodies; i++) {
-      const x = BODY_SIZE + Math.random() * (worldBounds.maxX - 2 * BODY_SIZE);
-      const y = BODY_SIZE + Math.random() * (worldBounds.maxY - 2 * BODY_SIZE);
+      const x = size + Math.random() * (worldBounds.maxX - 2 * size);
+      const y = size + Math.random() * (worldBounds.maxY - 2 * size);
 
       const body = new Body({
-        velocity: Vector2.random(1),
-        box: new Box2D(x, y, BODY_SIZE, BODY_SIZE),
+        velocity: Vector2.random(velocity),
+        box: new Box2D(x, y, size, size),
       });
 
       bodies.push(body);
