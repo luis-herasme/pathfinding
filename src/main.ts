@@ -1,4 +1,4 @@
-import { World } from "./world";
+import { World } from "./bodies/world";
 import Render from "./render/render";
 import Stats from "stats.js";
 import { CellDecomposition } from "./cell-decomposition";
@@ -33,7 +33,7 @@ const WORLD_VERTICES = [
 const world = World.createRandomWorld({
   worldBounds: WORLD_BOUNDS,
   numberOfBodies: 30,
-  size: 50,
+  size: 100,
   velocity: 0.5,
 });
 
@@ -112,11 +112,11 @@ window.addEventListener("mousemove", (e) => {
 });
 
 window.addEventListener("keypress", (e) => {
-  keysDown.add(e.key);
+  keysDown.add(e.key.toLowerCase());
 });
 
 window.addEventListener("keyup", (e) => {
-  keysDown.delete(e.key);
+  keysDown.delete(e.key.toLowerCase());
 });
 
 let scale = 1;
@@ -292,11 +292,11 @@ function update() {
       }
 
       // Draw visited
-      // for (const cell of quadGraph.nodes.values()) {
-      //   if (cell.visited) {
-      //     render.fillCircle(cell.position.x, cell.position.y, 6, "green");
-      //   }
-      // }
+      for (const cell of quadGraph.nodes.values()) {
+        if (cell.visited) {
+          render.fillCircle(cell.position.x, cell.position.y, 6, "green");
+        }
+      }
     } else {
       console.log("No path found");
     }
@@ -315,15 +315,10 @@ function update() {
     "black"
   );
 
-  for (const obstacle of world.bodies) {
-    // render.fillRect(obstacle, `rgb(255, 0, 0)`);
-    render.fillCircle(
-      obstacle.position.x,
-      obstacle.position.y,
-      obstacle.radius,
-      `rgba(255, 0, 0, 0.5)`
-    );
+  for (const body of world.bodies) {
+    body.render(render);
   }
+
   stats.end();
 
   requestAnimationFrame(update);

@@ -1,7 +1,7 @@
 import { Box2D } from "./box";
 import { Vector2 } from "./vector";
 
-interface Obstacle {
+export interface Obstacle {
   collideWithBox(box: Box2D): boolean;
   completelyContainsBox(box: Box2D): boolean;
 }

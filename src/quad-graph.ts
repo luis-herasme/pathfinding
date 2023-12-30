@@ -4,7 +4,7 @@ import { CellDecomposition } from "./cell-decomposition";
 import { Node, PathfindingGraph } from "./pathfinding/pathfinding-graph";
 
 export class QuadGraph implements PathfindingGraph<number, Vector2> {
-  private nodes: Map<number, Node<number, Vector2>>;
+  nodes: Map<number, Node<number, Vector2>>;
   private cells: Map<number, CellDecomposition>;
   private root: CellDecomposition;
 
