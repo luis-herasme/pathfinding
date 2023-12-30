@@ -2,6 +2,15 @@ import { Vector2 } from "./vector";
 import { keysDown } from "./input";
 import Render from "./render/render";
 
+function getTransformedPoint(
+  x: number,
+  y: number,
+  context: CanvasRenderingContext2D
+) {
+  const originalPoint = new DOMPoint(x, y);
+  return context.getTransform().invertSelf().transformPoint(originalPoint);
+}
+
 export class Camera {
   private position: Vector2 = new Vector2(0, 0);
   private velocity: Vector2 = new Vector2(0, 0);
@@ -12,6 +21,7 @@ export class Camera {
 
   constructor(render: Render) {
     this.render = render;
+    window.addEventListener("wheel", this.onWheel);
   }
 
   addForce(force: Vector2) {
@@ -38,6 +48,28 @@ export class Camera {
     this.velocity.add(friction);
     this.render.setTranslation(this.position.x, this.position.y);
   }
+
+  private onWheel = (event: WheelEvent) => {
+    const currentTransformedCursor = getTransformedPoint(
+      event.offsetX,
+      event.offsetY,
+      this.render.context
+    );
+
+    const zoom = event.deltaY < 0 ? 1.1 : 0.9;
+
+    this.render.context.translate(
+      currentTransformedCursor.x,
+      currentTransformedCursor.y
+    );
+
+    this.render.context.scale(zoom, zoom);
+
+    this.render.context.translate(
+      -currentTransformedCursor.x,
+      -currentTransformedCursor.y
+    );
+  };
 
   private listenForInput(dt: number) {
     if (keysDown.has("w")) {
