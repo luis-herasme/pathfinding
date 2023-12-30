@@ -36,12 +36,17 @@ export class CellDecomposition {
   private bottomLeft: CellDecomposition | null = null;
   private bottomRight: CellDecomposition | null = null;
 
-  constructor(
-    bbox: Box2D,
-    cells: Map<number, CellDecomposition>,
-    depth: number = 0,
-    maxDepth: number = 8
-  ) {
+  constructor({
+    bbox,
+    cells,
+    depth = 0,
+    maxDepth = 8,
+  }: {
+    bbox: Box2D;
+    cells: Map<number, CellDecomposition>;
+    depth: number;
+    maxDepth: number;
+  }) {
     this.bbox = bbox;
     this.depth = depth;
     this.maxDepth = maxDepth;
@@ -98,7 +103,7 @@ export class CellDecomposition {
     return null;
   }
 
-  getLeaves(leaves: CellDecomposition[]) {
+  getLeaves(leaves: CellDecomposition[] = []) {
     // Check if this is a leaf
     if (!this.divided) {
       leaves.push(this);
@@ -119,6 +124,8 @@ export class CellDecomposition {
     if (this.bottomRight) {
       this.bottomRight.getLeaves(leaves);
     }
+
+    return leaves;
   }
 
   getRegion(bbox: Box2D, cells: CellDecomposition[]) {
@@ -153,33 +160,33 @@ export class CellDecomposition {
     const width = this.bbox.width / 2;
     const height = this.bbox.height / 2;
 
-    this.topLeft = new CellDecomposition(
-      new Box2D(this.bbox.x, this.bbox.y, width, height),
-      this.cells,
-      this.depth + 1,
-      this.maxDepth
-    );
+    this.topLeft = new CellDecomposition({
+      bbox: new Box2D(this.bbox.x, this.bbox.y, width, height),
+      cells: this.cells,
+      depth: this.depth + 1,
+      maxDepth: this.maxDepth,
+    });
 
-    this.topRight = new CellDecomposition(
-      new Box2D(this.bbox.x + width, this.bbox.y, width, height),
-      this.cells,
-      this.depth + 1,
-      this.maxDepth
-    );
+    this.topRight = new CellDecomposition({
+      bbox: new Box2D(this.bbox.x + width, this.bbox.y, width, height),
+      cells: this.cells,
+      depth: this.depth + 1,
+      maxDepth: this.maxDepth,
+    });
 
-    this.bottomLeft = new CellDecomposition(
-      new Box2D(this.bbox.x, this.bbox.y + height, width, height),
-      this.cells,
-      this.depth + 1,
-      this.maxDepth
-    );
+    this.bottomLeft = new CellDecomposition({
+      bbox: new Box2D(this.bbox.x, this.bbox.y + height, width, height),
+      cells: this.cells,
+      depth: this.depth + 1,
+      maxDepth: this.maxDepth,
+    });
 
-    this.bottomRight = new CellDecomposition(
-      new Box2D(this.bbox.x + width, this.bbox.y + height, width, height),
-      this.cells,
-      this.depth + 1,
-      this.maxDepth
-    );
+    this.bottomRight = new CellDecomposition({
+      bbox: new Box2D(this.bbox.x + width, this.bbox.y + height, width, height),
+      cells: this.cells,
+      depth: this.depth + 1,
+      maxDepth: this.maxDepth,
+    });
   }
 
   insert(item: Obstacle) {
