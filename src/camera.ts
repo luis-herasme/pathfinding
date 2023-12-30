@@ -19,6 +19,8 @@ export class Camera {
   }
 
   update(dt: number) {
+    this.listenForInput(dt);
+
     this.velocity.add(this.acceleration);
     this.position.add(Vector2.multiplyByScalar(this.velocity, dt));
     this.acceleration.multiplyByScalar(0);
@@ -35,8 +37,6 @@ export class Camera {
 
     this.velocity.add(friction);
     this.render.setTranslation(this.position.x, this.position.y);
-
-    this.listenForInput(dt);
   }
 
   private listenForInput(dt: number) {
