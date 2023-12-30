@@ -24,6 +24,7 @@ function interleaveBits(x: number, y: number): number {
 export class CellDecomposition {
   bbox: Box2D;
   occupied: boolean = false;
+  center: Vector2;
 
   private maxDepth: number;
   private depth: number = 0;
@@ -51,6 +52,7 @@ export class CellDecomposition {
     this.depth = depth;
     this.maxDepth = maxDepth;
     this.cells = cells;
+    this.center = bbox.center;
     this.cells.set(this.getID(), this);
   }
 
