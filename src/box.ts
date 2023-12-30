@@ -26,7 +26,7 @@ export class Box2D {
     );
   }
 
-  collidesWith(box: Box2D) {
+  collideWithBox(box: Box2D) {
     return (
       this.x < box.x + box.width &&
       this.x + this.width > box.x &&

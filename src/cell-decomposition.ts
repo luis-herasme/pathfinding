@@ -2,19 +2,21 @@ import { Box2D } from "./box";
 import { Vector2 } from "./vector";
 import { Node, PathfindingGraph } from "./pathfinding/pathfinding-graph";
 
-const MAX_DEPTH = 7;
+export class QuadGraph implements PathfindingGraph<number, Vector2> {
+  private nodes: Map<number, Node<number, Vector2>>;
+  private cells: Map<number, CellDecomposition<number>>;
+  private root: CellDecomposition<number>;
 
-export class QuadGraph implements PathfindingGraph<string, Vector2> {
-  nodes: Map<string, Node<string, Vector2>> = new Map();
-  private root: CellDecomposition;
-  private cells: Map<string, CellDecomposition>;
-
-  constructor(root: CellDecomposition, cells: Map<string, CellDecomposition>) {
-    this.root = root;
+  constructor(
+    root: CellDecomposition<number>,
+    cells: Map<number, CellDecomposition<number>>
+  ) {
+    this.nodes = new Map();
     this.cells = cells;
+    this.root = root;
   }
 
-  get(nodeId: string): Node<string, Vector2> | null {
+  get(nodeId: number): Node<number, Vector2> | null {
     if (this.nodes.has(nodeId)) {
       return this.nodes.get(nodeId)!;
     }
@@ -34,12 +36,11 @@ export class QuadGraph implements PathfindingGraph<string, Vector2> {
     };
 
     this.nodes.set(nodeId, node);
-
     return node;
   }
 
   private getNeighbors(bbox: Box2D): {
-    nodeId: string;
+    nodeId: number;
     weight: number;
   }[] {
     const neighborsBBOX = new Box2D(
@@ -49,14 +50,14 @@ export class QuadGraph implements PathfindingGraph<string, Vector2> {
       bbox.height + 2
     );
 
-    const neighbors: {
-      nodeId: string;
-      weight: number;
-    }[] = [];
-
-    const neighborCells: CellDecomposition[] = [];
+    const neighborCells: CellDecomposition<number>[] = [];
     this.root.getRegion(neighborsBBOX, neighborCells);
     const center = bbox.center;
+
+    const neighbors: {
+      nodeId: number;
+      weight: number;
+    }[] = [];
 
     for (const cell of neighborCells) {
       if (cell.occupied) {
@@ -75,7 +76,27 @@ export class QuadGraph implements PathfindingGraph<string, Vector2> {
   }
 }
 
-export class CellDecomposition {
+interface Obstacle {
+  collideWithBox(box: Box2D): boolean;
+  completelyContainsBox(box: Box2D): boolean;
+}
+
+function interleaveBits(x: number, y: number): number {
+  let result = 0;
+  for (let i = 0; 0 < x || 0 < y; i++) {
+    if (x > 0) {
+      result |= (x & 1) << (2 * i);
+      x >>= 1;
+    }
+    if (y > 0) {
+      result |= (y & 1) << (2 * i + 1);
+      y >>= 1;
+    }
+  }
+  return result;
+}
+
+export class CellDecomposition<NodeID> {
   bbox: Box2D;
   occupied: boolean = false;
 
@@ -83,30 +104,38 @@ export class CellDecomposition {
   private divided: boolean = false;
 
   // Children
-  private topLeft: CellDecomposition | null = null;
-  private topRight: CellDecomposition | null = null;
-  private bottomLeft: CellDecomposition | null = null;
-  private bottomRight: CellDecomposition | null = null;
+  private topLeft: CellDecomposition<NodeID> | null = null;
+  private topRight: CellDecomposition<NodeID> | null = null;
+  private bottomLeft: CellDecomposition<NodeID> | null = null;
+  private bottomRight: CellDecomposition<NodeID> | null = null;
 
-  cells: Map<string, CellDecomposition>;
-
+  cells: Map<NodeID, CellDecomposition<NodeID>>;
+  maxDepth: number;
   constructor(
     bbox: Box2D,
-    cells: Map<string, CellDecomposition>,
-    depth: number = 0
+    cells: Map<NodeID, CellDecomposition<NodeID>>,
+    depth: number = 0,
+    maxDepth: number = 8
   ) {
     this.bbox = bbox;
     this.depth = depth;
+    this.maxDepth = maxDepth;
     this.cells = cells;
     this.cells.set(this.getID(), this);
   }
 
-  getID() {
-    return `${this.bbox.center.x},${this.bbox.center.y}`;
+  getID(): NodeID {
+    // return `${this.bbox.center.x},${this.bbox.center.y}` as  NodeID;
+    return interleaveBits(
+      this.bbox.center.x * 100,
+      this.bbox.center.y * 100
+    ) as NodeID;
+
+    // return this.bbox.center as NodeID;
   }
 
   // Get the leave that contains the given point
-  getLeaf(point: Vector2): CellDecomposition | null {
+  getLeaf(point: Vector2): CellDecomposition<NodeID> | null {
     if (!this.bbox.containsPoint(point)) {
       return null;
     }
@@ -150,7 +179,7 @@ export class CellDecomposition {
     return null;
   }
 
-  getLeaves(leaves: CellDecomposition[]) {
+  getLeaves(leaves: CellDecomposition<NodeID>[]) {
     // Check if this is a leaf
     if (!this.divided) {
       leaves.push(this);
@@ -173,8 +202,8 @@ export class CellDecomposition {
     }
   }
 
-  getRegion(bbox: Box2D, cells: CellDecomposition[]) {
-    if (!collide(this.bbox, bbox)) {
+  getRegion(bbox: Box2D, cells: CellDecomposition<NodeID>[]) {
+    if (!this.bbox.collideWithBox(bbox)) {
       return;
     }
 
@@ -199,7 +228,7 @@ export class CellDecomposition {
     }
   }
 
-  subdivide() {
+  private subdivide() {
     this.divided = true;
 
     const width = this.bbox.width / 2;
@@ -208,38 +237,51 @@ export class CellDecomposition {
     this.topLeft = new CellDecomposition(
       new Box2D(this.bbox.x, this.bbox.y, width, height),
       this.cells,
-      this.depth + 1
+      this.depth + 1,
+      this.maxDepth
     );
 
     this.topRight = new CellDecomposition(
       new Box2D(this.bbox.x + width, this.bbox.y, width, height),
       this.cells,
-      this.depth + 1
+      this.depth + 1,
+      this.maxDepth
     );
 
     this.bottomLeft = new CellDecomposition(
       new Box2D(this.bbox.x, this.bbox.y + height, width, height),
       this.cells,
-      this.depth + 1
+      this.depth + 1,
+      this.maxDepth
     );
 
     this.bottomRight = new CellDecomposition(
       new Box2D(this.bbox.x + width, this.bbox.y + height, width, height),
       this.cells,
-      this.depth + 1
+      this.depth + 1,
+      this.maxDepth
     );
   }
 
-  insert(box: Box2D) {
-    if (this.depth >= MAX_DEPTH) {
-      if (collide(this.bbox, box)) {
+  insert(item: Obstacle) {
+    if (this.occupied) {
+      return;
+    }
+
+    if (this.depth >= this.maxDepth) {
+      if (item.collideWithBox(this.bbox)) {
         this.occupied = true;
       }
 
       return;
     }
 
-    if (!collide(this.bbox, box)) {
+    if (!item.collideWithBox(this.bbox)) {
+      return;
+    }
+
+    if (item.completelyContainsBox(this.bbox) && !this.occupied && !this.divided) {
+      this.occupied = true;
       return;
     }
 
@@ -248,28 +290,19 @@ export class CellDecomposition {
     }
 
     if (this.topLeft) {
-      this.topLeft.insert(box);
+      this.topLeft.insert(item);
     }
 
     if (this.topRight) {
-      this.topRight.insert(box);
+      this.topRight.insert(item);
     }
 
     if (this.bottomLeft) {
-      this.bottomLeft.insert(box);
+      this.bottomLeft.insert(item);
     }
 
     if (this.bottomRight) {
-      this.bottomRight.insert(box);
+      this.bottomRight.insert(item);
     }
   }
-}
-
-function collide(b1: Box2D, b2: Box2D) {
-  return (
-    b1.x < b2.x + b2.width &&
-    b1.x + b1.width > b2.x &&
-    b1.y < b2.y + b2.height &&
-    b1.y + b1.height > b2.y
-  );
 }

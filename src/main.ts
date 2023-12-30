@@ -6,6 +6,7 @@ import { CellDecomposition, QuadGraph } from "./cell-decomposition";
 import { Box2D } from "./box";
 import { aStar } from "./pathfinding/a-star";
 import { Vector2 } from "./vector";
+import { BoxBody } from "./body";
 
 const stats = new Stats();
 stats.showPanel(0);
@@ -33,25 +34,32 @@ const WORLD_VERTICES = [
 const world = World.createRandomWorld({
   worldBounds: WORLD_BOUNDS,
   numberOfBodies: 30,
-  size: 100,
-  velocity: 2.5,
+  size: 50,
+  velocity: 0.5,
 });
 
-function generateWorldMesh() {
-  const boxes = world.getBoxes();
-  const holeIndices: number[] = [];
-  let holeIndicesCount = WORLD_VERTICES.length / 2;
+// const centerBody = new Body({
+//   box: new Box2D(250, 250, 500, 500),
+//   velocity: new Vector2(0, 0),
+// });
 
-  for (let i = 0; i < boxes.length; i++) {
-    holeIndices.push(holeIndicesCount);
-    holeIndicesCount = holeIndicesCount + boxes[i].getVertices().length;
-  }
+// world.addBody(centerBody);
 
-  const holes = boxes.map((box) => box.getVertices().flat()).flat();
-  const flatData = [...WORLD_VERTICES, ...holes];
-  const triangles = triangulate(flatData, holeIndices);
-  return triangles;
-}
+// function generateWorldMesh() {
+//   const boxes = world.getBoxes();
+//   const holeIndices: number[] = [];
+//   let holeIndicesCount = WORLD_VERTICES.length / 2;
+
+//   for (let i = 0; i < boxes.length; i++) {
+//     holeIndices.push(holeIndicesCount);
+//     holeIndicesCount = holeIndicesCount + boxes[i].getVertices().length;
+//   }
+
+//   const holes = boxes.map((box) => box.getVertices().flat()).flat();
+//   const flatData = [...WORLD_VERTICES, ...holes];
+//   const triangles = triangulate(flatData, holeIndices);
+//   return triangles;
+// }
 
 render.init();
 
@@ -175,28 +183,29 @@ function onWheel(event: WheelEvent) {
 }
 
 let lastTime = Date.now();
-const CAMERA_SPEED = 40;
+const CAMERA_SPEED = 6000;
 
 function update() {
-  if (keysDown.has("w")) {
-    cameraBody.addForce(new Vector2(0, CAMERA_SPEED));
-  }
-
-  if (keysDown.has("s")) {
-    cameraBody.addForce(new Vector2(0, -CAMERA_SPEED));
-  }
-
-  if (keysDown.has("a")) {
-    cameraBody.addForce(new Vector2(CAMERA_SPEED, 0));
-  }
-
-  if (keysDown.has("d")) {
-    cameraBody.addForce(new Vector2(-CAMERA_SPEED, 0));
-  }
-
   const currentTime = Date.now();
   const dt = (currentTime - lastTime) / 1000;
   lastTime = currentTime;
+
+  if (keysDown.has("w")) {
+    cameraBody.addForce(new Vector2(0, CAMERA_SPEED * dt));
+  }
+
+  if (keysDown.has("s")) {
+    cameraBody.addForce(new Vector2(0, -CAMERA_SPEED * dt));
+  }
+
+  if (keysDown.has("a")) {
+    cameraBody.addForce(new Vector2(CAMERA_SPEED * dt, 0));
+  }
+
+  if (keysDown.has("d")) {
+    cameraBody.addForce(new Vector2(-CAMERA_SPEED * dt, 0));
+  }
+
   cameraBody.update(dt);
   stats.begin();
   world.update();
@@ -211,23 +220,20 @@ function update() {
   //   render.drawTriangle(triangle, color);
   // }
 
-  const cells = new Map<string, CellDecomposition>();
-  const rootCell = new CellDecomposition(
+  const cells = new Map<number, CellDecomposition<number>>();
+  const rootCell = new CellDecomposition<number>(
     new Box2D(0, 0, WORLD_BOUNDS.maxX, WORLD_BOUNDS.maxY),
-    cells
+    cells,
+    0,
+    6
   );
   const quadGraph = new QuadGraph(rootCell, cells);
 
-  const worldBoxes = world.getBoxes();
-
-  for (const box of worldBoxes) {
-    rootCell.insert(box);
+  for (const body of world.bodies) {
+    rootCell.insert(body);
   }
 
-
-
-
-  const leaves: CellDecomposition[] = [];
+  const leaves: CellDecomposition<number>[] = [];
   rootCell.getLeaves(leaves);
 
   for (const cell of leaves) {
@@ -238,27 +244,11 @@ function update() {
       render.fillCircle(
         cell.bbox.x + cell.bbox.width / 2,
         cell.bbox.y + cell.bbox.height / 2,
-        2,
+       1,
         "red"
       );
     }
   }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
   const startPoint = new Vector2(10, 10);
   const endPoint = new Vector2(WORLD_BOUNDS.maxX - 10, WORLD_BOUNDS.maxY - 10);
@@ -266,11 +256,11 @@ function update() {
   const endCell = rootCell.getLeaf(endPoint)!;
 
   if (!startCell.occupied && !endCell.occupied) {
-    const path = aStar<string, Vector2>({
+    const path = aStar<number, Vector2>({
       start: startCell.getID(),
       end: endCell.getID(),
       graph: quadGraph,
-      heuristic: (start, end) => 2 * start.distanceTo(end),
+      heuristic: (start, end) => start.distanceTo(end) ** 2,
       invalidNodes: new Set(),
     });
     if (path) {
@@ -303,15 +293,17 @@ function update() {
       }
 
       // Draw visited
-      for (const cell of quadGraph.nodes.values()) {
-        if (cell.visited) {
-          render.fillCircle(cell.position.x, cell.position.y, 6, "green");
-        }
-      }
+      // for (const cell of quadGraph.nodes.values()) {
+      //   if (cell.visited) {
+      //     render.fillCircle(cell.position.x, cell.position.y, 6, "green");
+      //   }
+      // }
+    } else {
+      console.log("No path found");
     }
+  } else {
+    console.log("Start or end cell is occupied");
   }
-
- 
 
   // Draw world bounds
   render.strokeRect(
@@ -324,8 +316,14 @@ function update() {
     "black"
   );
 
-  for (const obstacle of worldBoxes) {
-    render.fillRect(obstacle, `rgb(255, 0, 0)`);
+  for (const obstacle of world.bodies) {
+    // render.fillRect(obstacle, `rgb(255, 0, 0)`);
+    render.fillCircle(
+      obstacle.position.x,
+      obstacle.position.y,
+      obstacle.radius,
+      `rgba(255, 0, 0, 0.5)`
+    );
   }
   stats.end();
 
