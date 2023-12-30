@@ -219,8 +219,8 @@ function update() {
   //   render.drawTriangle(triangle, color);
   // }
 
-  const cells = new Map<number, CellDecomposition<number>>();
-  const rootCell = new CellDecomposition<number>(
+  const cells = new Map<number, CellDecomposition>();
+  const rootCell = new CellDecomposition(
     new Box2D(0, 0, WORLD_BOUNDS.maxX, WORLD_BOUNDS.maxY),
     cells,
     0,
@@ -232,7 +232,7 @@ function update() {
     rootCell.insert(body);
   }
 
-  const leaves: CellDecomposition<number>[] = [];
+  const leaves: CellDecomposition[] = [];
   rootCell.getLeaves(leaves);
 
   for (const cell of leaves) {
@@ -243,7 +243,7 @@ function update() {
       render.fillCircle(
         cell.bbox.x + cell.bbox.width / 2,
         cell.bbox.y + cell.bbox.height / 2,
-       1,
+        1,
         "red"
       );
     }

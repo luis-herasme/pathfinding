@@ -21,24 +21,24 @@ function interleaveBits(x: number, y: number): number {
   return result;
 }
 
-export class CellDecomposition<NodeID> {
+export class CellDecomposition {
   bbox: Box2D;
   occupied: boolean = false;
 
-  depth: number = 0;
+  private maxDepth: number;
+  private depth: number = 0;
   private divided: boolean = false;
+  private cells: Map<number, CellDecomposition>;
 
   // Children
-  private topLeft: CellDecomposition<NodeID> | null = null;
-  private topRight: CellDecomposition<NodeID> | null = null;
-  private bottomLeft: CellDecomposition<NodeID> | null = null;
-  private bottomRight: CellDecomposition<NodeID> | null = null;
+  private topLeft: CellDecomposition | null = null;
+  private topRight: CellDecomposition | null = null;
+  private bottomLeft: CellDecomposition | null = null;
+  private bottomRight: CellDecomposition | null = null;
 
-  cells: Map<NodeID, CellDecomposition<NodeID>>;
-  maxDepth: number;
   constructor(
     bbox: Box2D,
-    cells: Map<NodeID, CellDecomposition<NodeID>>,
+    cells: Map<number, CellDecomposition>,
     depth: number = 0,
     maxDepth: number = 8
   ) {
@@ -49,16 +49,12 @@ export class CellDecomposition<NodeID> {
     this.cells.set(this.getID(), this);
   }
 
-  getID(): NodeID {
-    // return `${this.bbox.center.x},${this.bbox.center.y}` as  NodeID;
-    return interleaveBits(
-      this.bbox.center.x * 100,
-      this.bbox.center.y * 100
-    ) as NodeID;
+  getID(): number {
+    return interleaveBits(this.bbox.center.x * 100, this.bbox.center.y * 100);
   }
 
   // Get the leave that contains the given point
-  getLeaf(point: Vector2): CellDecomposition<NodeID> | null {
+  getLeaf(point: Vector2): CellDecomposition | null {
     if (!this.bbox.containsPoint(point)) {
       return null;
     }
@@ -102,7 +98,7 @@ export class CellDecomposition<NodeID> {
     return null;
   }
 
-  getLeaves(leaves: CellDecomposition<NodeID>[]) {
+  getLeaves(leaves: CellDecomposition[]) {
     // Check if this is a leaf
     if (!this.divided) {
       leaves.push(this);
@@ -125,7 +121,7 @@ export class CellDecomposition<NodeID> {
     }
   }
 
-  getRegion(bbox: Box2D, cells: CellDecomposition<NodeID>[]) {
+  getRegion(bbox: Box2D, cells: CellDecomposition[]) {
     if (!this.bbox.collideWithBox(bbox)) {
       return;
     }
@@ -203,7 +199,11 @@ export class CellDecomposition<NodeID> {
       return;
     }
 
-    if (item.completelyContainsBox(this.bbox) && !this.occupied && !this.divided) {
+    if (
+      item.completelyContainsBox(this.bbox) &&
+      !this.occupied &&
+      !this.divided
+    ) {
       this.occupied = true;
       return;
     }

@@ -5,13 +5,10 @@ import { Node, PathfindingGraph } from "./pathfinding/pathfinding-graph";
 
 export class QuadGraph implements PathfindingGraph<number, Vector2> {
   private nodes: Map<number, Node<number, Vector2>>;
-  private cells: Map<number, CellDecomposition<number>>;
-  private root: CellDecomposition<number>;
+  private cells: Map<number, CellDecomposition>;
+  private root: CellDecomposition;
 
-  constructor(
-    root: CellDecomposition<number>,
-    cells: Map<number, CellDecomposition<number>>
-  ) {
+  constructor(root: CellDecomposition, cells: Map<number, CellDecomposition>) {
     this.nodes = new Map();
     this.cells = cells;
     this.root = root;
@@ -51,7 +48,7 @@ export class QuadGraph implements PathfindingGraph<number, Vector2> {
       bbox.height + 2
     );
 
-    const neighborCells: CellDecomposition<number>[] = [];
+    const neighborCells: CellDecomposition[] = [];
     this.root.getRegion(neighborsBBOX, neighborCells);
     const center = bbox.center;
 
