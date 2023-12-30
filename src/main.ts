@@ -1,12 +1,11 @@
 import { World } from "./world";
 import Render from "./render/render";
-import { triangulate } from "./navmesh/triangle";
 import Stats from "stats.js";
-import { CellDecomposition, QuadGraph } from "./cell-decomposition";
+import { CellDecomposition } from "./cell-decomposition";
 import { Box2D } from "./box";
 import { aStar } from "./pathfinding/a-star";
 import { Vector2 } from "./vector";
-import { BoxBody } from "./body";
+import { QuadGraph } from "./quad-graph";
 
 const stats = new Stats();
 stats.showPanel(0);
