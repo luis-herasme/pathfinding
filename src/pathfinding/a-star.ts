@@ -58,7 +58,7 @@ export function aStar<NodeID, NodePosition>({
     }
 
     const currentNode = graph.get(currentNodeID)!;
-    currentNode.visited = true;
+    // currentNode.visited = true;
 
     for (const neighbor of currentNode.neighbors) {
       if (invalidNodes.has(neighbor.nodeId)) {
@@ -77,8 +77,12 @@ export function aStar<NodeID, NodePosition>({
         let hValue = hCache.get(neighbor.nodeId);
 
         if (hValue === undefined) {
+          const neighborNode = graph.get(neighbor.nodeId);
+          if (!neighborNode) {
+            throw new Error(`Neighbor node does not exist: ${neighbor.nodeId}`);
+          }
           hValue = heuristic(
-            graph.get(neighbor.nodeId)!.position,
+            neighborNode.position,
             endNodePosition
           );
           hCache.set(neighbor.nodeId, hValue);

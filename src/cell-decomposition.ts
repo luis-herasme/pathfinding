@@ -1,9 +1,16 @@
 import { Box2D } from "./box";
 import { Vector2 } from "./vector";
 
+type Box = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+};
+
 export interface Obstacle {
-  collideWithBox(box: Box2D): boolean;
-  completelyContainsBox(box: Box2D): boolean;
+  collideWithBox(box: Box): boolean;
+  completelyContainsBox(box: Box): boolean;
 }
 
 function interleaveBits(x: number, y: number): number {

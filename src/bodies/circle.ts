@@ -42,12 +42,30 @@ export class CircleBody implements Obstacle, Body {
   }
 
   completelyContainsBox(box: Box2D) {
-    return (
-      this.position.x - this.radius <= box.x &&
-      this.position.x + this.radius >= box.x + box.width &&
-      this.position.y - this.radius <= box.y &&
-      this.position.y + this.radius >= box.y + box.height
-    );
+    const rectCorners = [
+      { x: box.x, y: box.y },
+      { x: box.x + box.width, y: box.y },
+      { x: box.x, y: box.y + box.height },
+      { x: box.x + box.width, y: box.y + box.height },
+    ];
+
+    for (const corner of rectCorners) {
+      const dist =
+        Math.pow(corner.x - this.position.x, 2) +
+        Math.pow(corner.y - this.position.y, 2);
+        
+      if (dist > Math.pow(this.radius, 2)) {
+        return false;
+      }
+    }
+
+    return true;
+    // return (
+    //   this.position.x - this.radius <= box.x &&
+    //   this.position.x + this.radius >= box.x + box.width &&
+    //   this.position.y - this.radius <= box.y &&
+    //   this.position.y + this.radius >= box.y + box.height
+    // );
   }
 
   collideWithWorldBounds(worldBounds: Bounds): void {

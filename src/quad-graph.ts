@@ -72,4 +72,8 @@ export class QuadGraph implements PathfindingGraph<number, Vector2> {
 
     return neighbors;
   }
+
+  set(nodeId: number, node: Node<number, Vector2>): void {
+    this.nodes.set(nodeId, node);
+  }
 }

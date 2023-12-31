@@ -1,5 +1,5 @@
 export type Node<NodeID, NodePosition> = {
-  visited: boolean;
+  // visited: boolean;
   //
   position: NodePosition;
   neighbors: {
@@ -10,4 +10,5 @@ export type Node<NodeID, NodePosition> = {
 
 export interface PathfindingGraph<NodeID, NodePosition> {
   get(nodeId: NodeID): Node<NodeID, NodePosition> | null;
+  set(nodeId: NodeID, node: Node<NodeID, NodePosition>): void;
 }

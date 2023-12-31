@@ -22,7 +22,7 @@ export class QuadPathfinder {
       bbox: new Box2D(0, 0, worldBounds.maxX, worldBounds.maxY),
       cells,
       depth: 0,
-      maxDepth: 6,
+      maxDepth: 10,
     });
     const quadGraph = new QuadGraph(root, cells);
 
@@ -56,9 +56,10 @@ export class QuadPathfinder {
     return {
       path: pathResult,
       leaves: root.getLeaves(),
-      visited: Array.from(quadGraph.nodes.values()).filter(
-        (node) => node.visited
-      ),
+      visited: [],
+      // visited: Array.from(quadGraph.nodes.values()).filter(
+      //   (node) => node.visited
+      // ),
     };
   }
 }
