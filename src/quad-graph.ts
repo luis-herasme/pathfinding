@@ -41,15 +41,22 @@ export class QuadGraph implements PathfindingGraph<number, Vector2> {
     nodeId: number;
     weight: number;
   }[] {
-    const neighborsBBOX = new Box2D(
+    const neighborsBoxX = new Box2D(
       bbox.x - 1,
-      bbox.y - 1,
+      bbox.y,
       bbox.width + 2,
+      bbox.height
+    );
+    const neighborsBoxY = new Box2D(
+      bbox.x,
+      bbox.y - 1,
+      bbox.width,
       bbox.height + 2
     );
 
     const neighborCells: CellDecomposition[] = [];
-    this.root.getRegion(neighborsBBOX, neighborCells);
+    this.root.getRegion(neighborsBoxX, neighborCells);
+    this.root.getRegion(neighborsBoxY, neighborCells);
     const center = bbox.center;
 
     const neighbors: {

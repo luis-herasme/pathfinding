@@ -1,5 +1,6 @@
 import { World } from "./bodies/world";
 import { Box2D } from "./box";
+import { getTransformedPoint } from "./camera";
 import { planeGraphBuilder } from "./graph-builder";
 import { aStar } from "./pathfinding/a-star";
 import { QuadPathfinder } from "./quad-pathfinder";
@@ -18,14 +19,27 @@ const worldBounds = {
 
 const world = World.createRandomWorld({
   worldBounds: worldBounds,
-  numberOfBodies: 10,
-  size: 100,
-  velocity: 0.1,
+  numberOfBodies: 30,
+  size: 75,
+  velocity: 0,
 });
 
 const scene = new Scene(render, world);
 
+let mouse = {
+  x: 0,
+  y: 0,
+};
+
+window.addEventListener("mousemove", (e) => {
+  mouse= getTransformedPoint(e.offsetX, e.offsetY, render.context);
+});
+
 scene.onUpdate = () => {
+
+  // render.fillCircle(mouse.x, mouse.y, 10, "red");
+  world.bodies[0].position = new Vector2(mouse.x, mouse.y);
+
   const result = QuadPathfinder.findPath({
     start: new Vector2(10, 10),
     end: new Vector2(worldBounds.maxX - 10, worldBounds.maxY - 10),
@@ -37,24 +51,60 @@ scene.onUpdate = () => {
     return;
   }
 
-  const { path, leaves } = result;
+  const { leaves, smothPath, portals, path } = result;
 
   // Draw quadtree
-  // for (const cell of leaves) {
-  //   if (cell.occupied) {
-  //     render.fillRect(cell.bbox, `rgb(0, 255, 0)`);
-  //   } else {
-  //     render.strokeRect(cell.bbox, "white");
-  //     render.fillCircle(cell.center.x, cell.center.y, 1, "red");
-  //   }
-  // }
+  for (const cell of leaves) {
+    if (cell.occupied) {
+      render.fillRect(cell.bbox, `rgba(0, 255, 0, 0.5)`);
+    } else {
+      // render.strokeRect(cell.bbox, "white");
+      // render.fillCircle(cell.center.x, cell.center.y, 1, "red");
+    }
+  }
 
   // Draw path
   for (let i = 0; i < path.length - 1; i++) {
     const start = path[i];
     const end = path[i + 1];
+    render.drawLine(start.x, start.y, end.x, end.y, "gray", 2);
+    render.fillCircle(start.x, start.y, 5, "gray");
+  }
+
+  // Draw portals
+  // for (const portal of portals) {
+  //   // render.drawLine(
+  //   //   portal.left.x,
+  //   //   portal.left.y,
+  //   //   portal.right.x,
+  //   //   portal.right.y,
+  //   //   "rgb(0, 255, 0)",
+  //   //   4
+  //   // );
+  //   render.fillCircle(portal.left.x, portal.left.y, 8, "red");
+  //   render.fillCircle(portal.right.x, portal.right.y, 8, "blue");
+  // }
+
+  // Draw a line conecting the left of the portals
+  for (let i = 0; i < portals.length - 1; i++) {
+    const start = portals[i].left;
+    const end = portals[i + 1].left;
+    render.drawLine(start.x, start.y, end.x, end.y, "red", 2);
+  }
+
+  // Draw a line conecting the right of the portals
+  for (let i = 0; i < portals.length - 1; i++) {
+    const start = portals[i].right;
+    const end = portals[i + 1].right;
     render.drawLine(start.x, start.y, end.x, end.y, "blue", 2);
-    render.fillCircle(start.x, start.y, 5, "blue");
+  }
+
+  // // Draw smoth path
+  for (let i = 0; i < smothPath.length - 1; i++) {
+    const start = smothPath[i];
+    const end = smothPath[i + 1];
+    render.drawLine(start.x, start.y, end.x, end.y, "white", 2);
+    render.fillCircle(start.x, start.y, 5, "white");
   }
 
   // Draw visited
@@ -66,7 +116,7 @@ scene.onUpdate = () => {
 // const graph = planeGraphBuilder(1024, 1);
 // scene.onUpdate = () => {
 //   const invalidNodes = new Set<string>();
- 
+
 //   // @ts-ignore
 //   for (const [nodeId, node] of graph) {
 //     for (const body of world.bodies) {

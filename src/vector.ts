@@ -10,11 +10,15 @@ export class Vector2 {
   add(vector: Vector2) {
     this.x += vector.x;
     this.y += vector.y;
+
+    return this;
   }
 
   sub(vector: Vector2) {
     this.x -= vector.x;
     this.y -= vector.y;
+
+    return this;
   }
 
   multiplyByScalar(scalar: number) {
@@ -54,6 +58,38 @@ export class Vector2 {
 
   magnitude() {
     return Math.sqrt(this.x * this.x + this.y * this.y);
+  }
+
+  static triangleArea2(a: Vector2, b: Vector2, c: Vector2) {
+    return (a.x - c.x) * (b.y - c.y) - (a.y - c.y) * (b.x - c.x);
+  }
+
+  cross(vector: Vector2) {
+    return this.x * vector.y - this.y * vector.x;
+  }
+
+  equals(vector: Vector2) {
+    return this.x === vector.x && this.y === vector.y;
+  }
+
+  static equals(vector1: Vector2, vector2: Vector2) {
+    return vector1.x === vector2.x && vector1.y === vector2.y;
+  }
+
+  static add(vector1: Vector2, vector2: Vector2) {
+    return new Vector2(vector1.x + vector2.x, vector1.y + vector2.y);
+  }
+
+  static divideByScalar(vector: Vector2, scalar: number) {
+    return new Vector2(vector.x / scalar, vector.y / scalar);
+  }
+
+  static sub(vector1: Vector2, vector2: Vector2) {
+    return new Vector2(vector1.x - vector2.x, vector1.y - vector2.y);
+  }
+
+  static cross(vector1: Vector2, vector2: Vector2) {
+    return vector1.x * vector2.y - vector1.y * vector2.x;
   }
 
   static multiplyByScalar(vector: Vector2, scalar: number) {

@@ -33,8 +33,8 @@ export class CellDecomposition {
   occupied: boolean = false;
   center: Vector2;
 
+  depth: number = 0;
   private maxDepth: number;
-  private depth: number = 0;
   private divided: boolean = false;
   private cells: Map<number, CellDecomposition>;
 

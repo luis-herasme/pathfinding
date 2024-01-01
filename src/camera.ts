@@ -2,7 +2,7 @@ import { Vector2 } from "./vector";
 import { keysDown } from "./input";
 import Render from "./render/render";
 
-function getTransformedPoint(
+export function getTransformedPoint(
   x: number,
   y: number,
   context: CanvasRenderingContext2D

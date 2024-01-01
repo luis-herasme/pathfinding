@@ -97,6 +97,7 @@ class Render {
     this.context.moveTo(x1, y1);
     this.context.lineTo(x2, y2);
     this.context.stroke();
+    this.context.lineWidth = 1;
   }
 
   static drawPolygon(
