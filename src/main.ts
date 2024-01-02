@@ -20,8 +20,8 @@ const worldBounds = {
 const world = World.createRandomWorld({
   worldBounds: worldBounds,
   numberOfBodies: 30,
-  size: 75,
-  velocity: 0,
+  size: 50,
+  velocity: 0.1,
 });
 
 const scene = new Scene(render, world);
@@ -54,36 +54,36 @@ scene.onUpdate = () => {
   const { leaves, smothPath, portals, path } = result;
 
   // Draw quadtree
-  for (const cell of leaves) {
-    if (cell.occupied) {
-      render.fillRect(cell.bbox, `rgba(0, 255, 0, 0.5)`);
-    } else {
-      // render.strokeRect(cell.bbox, "white");
-      // render.fillCircle(cell.center.x, cell.center.y, 1, "red");
-    }
-  }
+  // for (const cell of leaves) {
+  //   if (cell.occupied) {
+  //     render.fillRect(cell.bbox, `rgba(255, 255, 255, 0.5)`);
+  //   } else {
+  //     render.strokeRect(cell.bbox, "rgba(255,255,255,0.1)");
+  //     render.fillCircle(cell.center.x, cell.center.y, 1, "red");
+  //   }
+  // }
 
-  // Draw path
-  for (let i = 0; i < path.length - 1; i++) {
-    const start = path[i];
-    const end = path[i + 1];
-    render.drawLine(start.x, start.y, end.x, end.y, "gray", 2);
-    render.fillCircle(start.x, start.y, 5, "gray");
-  }
+  // // Draw path
+  // for (let i = 0; i < path.length - 1; i++) {
+  //   const start = path[i];
+  //   const end = path[i + 1];
+  //   render.drawLine(start.x, start.y, end.x, end.y, "blue", 2);
+  //   render.fillCircle(start.x, start.y, 5, "blue");
+  // }
 
   // Draw portals
-  // for (const portal of portals) {
-  //   // render.drawLine(
-  //   //   portal.left.x,
-  //   //   portal.left.y,
-  //   //   portal.right.x,
-  //   //   portal.right.y,
-  //   //   "rgb(0, 255, 0)",
-  //   //   4
-  //   // );
-  //   render.fillCircle(portal.left.x, portal.left.y, 8, "red");
-  //   render.fillCircle(portal.right.x, portal.right.y, 8, "blue");
-  // }
+  for (const portal of portals) {
+    render.drawLine(
+      portal.left.x,
+      portal.left.y,
+      portal.right.x,
+      portal.right.y,
+      "rgb(0, 255, 0)",
+      1
+    );
+    // render.fillCircle(portal.left.x, portal.left.y, 8, "red");
+    // render.fillCircle(portal.right.x, portal.right.y, 8, "blue");
+  }
 
   // Draw a line conecting the left of the portals
   for (let i = 0; i < portals.length - 1; i++) {
@@ -97,6 +97,27 @@ scene.onUpdate = () => {
     const start = portals[i].right;
     const end = portals[i + 1].right;
     render.drawLine(start.x, start.y, end.x, end.y, "blue", 2);
+  }
+
+  // Fill the polygon resulting from the portals
+  for (let i = 0; i < portals.length - 1; i++) {
+    const startRight = portals[i].right;
+    const endRight = portals[i + 1].right;
+    const startLeft = portals[i].left;
+    const endLeft = portals[i + 1].left;
+
+    const vertices = [
+      startRight.x,
+      startRight.y,
+      endRight.x,
+      endRight.y,
+      endLeft.x,
+      endLeft.y,
+      startLeft.x,
+      startLeft.y,
+    ];
+
+    Render.drawPolygon(render.context, vertices, "rgba(255, 255, 255, 0.25)");
   }
 
   // // Draw smoth path

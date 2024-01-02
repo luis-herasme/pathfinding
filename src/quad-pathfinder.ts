@@ -137,7 +137,7 @@ export class QuadPathfinder {
         startCell.center,
         ...funnelPathSmoothing(pathResult, portals),
         // Vector2.add(portals[portals.length - 1].left, portals[portals.length - 1].right).divideByScalar(2),
-        // endCell.center,
+        endCell.center,
       ],
       portals,
       // visited: Array.from(quadGraph.nodes.values()).filter(

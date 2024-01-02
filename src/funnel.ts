@@ -18,6 +18,9 @@ export function funnelPathSmoothing(
   let leftIndex = 0;
   let rightIndex = 0;
 
+  // Add a portal at the end of the path.
+  portals.push({ left: path[path.length - 1], right: path[path.length - 1] });
+
   for (let i = 1; i < portals.length; i++) {
     const left = portals[i].left;
     const right = portals[i].right;

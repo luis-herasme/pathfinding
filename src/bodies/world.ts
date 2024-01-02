@@ -65,7 +65,13 @@ export class World {
     velocity: number;
   }) {
     const bodies: Body[] = [];
-
+    bodies.push(
+      new CircleBody({
+        radius: 100,
+        position: new Vector2(100, 100),
+        velocity: new Vector2(0, 0),
+      })
+    );
     for (let i = 0; i < numberOfBodies; i++) {
       const x = size + Math.random() * (worldBounds.maxX - 2 * size);
       const y = size + Math.random() * (worldBounds.maxY - 2 * size);
