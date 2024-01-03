@@ -84,19 +84,19 @@ function getSharedEdge(
 export class QuadPathfinder {
   private maxDepth: number;
   private obstacles: Obstacle[];
-  private worldBounds: Bounds;
+  private bounds: Bounds;
 
   constructor({
     obstacles,
-    worldBounds,
+    bounds,
     maxDepth,
   }: {
     obstacles: Obstacle[];
-    worldBounds: Bounds;
+    bounds: Bounds;
     maxDepth: number;
   }) {
     this.obstacles = obstacles;
-    this.worldBounds = worldBounds;
+    this.bounds = bounds;
     this.maxDepth = maxDepth;
   }
 
@@ -115,7 +115,12 @@ export class QuadPathfinder {
   }) {
     const cells = new Map<number, CellDecomposition>();
     const root = new CellDecomposition({
-      bbox: new Box2D(0, 0, this.worldBounds.maxX, this.worldBounds.maxY),
+      bbox: new Box2D(
+        this.bounds.minX,
+        this.bounds.minY,
+        this.bounds.maxX - this.bounds.minX,
+        this.bounds.maxY - this.bounds.minY
+      ),
       cells,
       depth: 0,
       maxDepth: this.maxDepth,

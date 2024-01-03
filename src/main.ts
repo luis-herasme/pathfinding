@@ -36,7 +36,7 @@ window.addEventListener("mousemove", (e) => {
 });
 
 const pathfinder = new QuadPathfinder({
-  worldBounds,
+  bounds: worldBounds,
   obstacles: world.bodies,
   maxDepth: 6,
 });
@@ -49,8 +49,8 @@ scene.onUpdate = () => {
 
   const result = pathfinder.findPath({
     start: {
-      x: 10,
-      y: 10,
+      x: worldBounds.minX + 10,
+      y: worldBounds.minY + 10,
     },
     end: {
       x: worldBounds.maxX - 10,
