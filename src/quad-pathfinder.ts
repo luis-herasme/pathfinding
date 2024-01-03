@@ -82,27 +82,47 @@ function getSharedEdge(
 }
 
 export class QuadPathfinder {
-  static findPath({
-    start,
-    end,
+  private maxDepth: number;
+  private obstacles: Obstacle[];
+  private worldBounds: Bounds;
+
+  constructor({
     obstacles,
     worldBounds,
+    maxDepth,
   }: {
-    start: Vector2;
-    end: Vector2;
     obstacles: Obstacle[];
     worldBounds: Bounds;
+    maxDepth: number;
+  }) {
+    this.obstacles = obstacles;
+    this.worldBounds = worldBounds;
+    this.maxDepth = maxDepth;
+  }
+
+  findPath({
+    start,
+    end,
+  }: {
+    start: {
+      x: number;
+      y: number;
+    };
+    end: {
+      x: number;
+      y: number;
+    };
   }) {
     const cells = new Map<number, CellDecomposition>();
     const root = new CellDecomposition({
-      bbox: new Box2D(0, 0, worldBounds.maxX, worldBounds.maxY),
+      bbox: new Box2D(0, 0, this.worldBounds.maxX, this.worldBounds.maxY),
       cells,
       depth: 0,
-      maxDepth: 6,
+      maxDepth: this.maxDepth,
     });
     const quadGraph = new QuadGraph(root, cells);
 
-    for (const obstacle of obstacles) {
+    for (const obstacle of this.obstacles) {
       root.insert(obstacle);
     }
 
@@ -125,24 +145,22 @@ export class QuadPathfinder {
       return null;
     }
 
-    const pathResult = path.map((nodeId) => cells.get(nodeId)!.bbox.center);
-    // pathResult.unshift(start);
-    // pathResult.push(end);
-    const portals = getPortals(path.map((nodeId) => cells.get(nodeId)!));
+    const pathCells = path.map((nodeId) => cells.get(nodeId)!);
+    const pathResult = pathCells.map((cell) => cell.bbox.center);
+    const portals = getPortals(pathCells);
+
+    const smothPath = [
+      startCell.center,
+      ...funnelPathSmoothing(pathResult, portals),
+      // Vector2.add(portals[portals.length - 1].left, portals[portals.length - 1].right).divideByScalar(2),
+      endCell.center,
+    ];
+
     return {
       path: pathResult,
       leaves: root.getLeaves(),
-      visited: [],
-      smothPath: [
-        startCell.center,
-        ...funnelPathSmoothing(pathResult, portals),
-        // Vector2.add(portals[portals.length - 1].left, portals[portals.length - 1].right).divideByScalar(2),
-        endCell.center,
-      ],
+      smothPath,
       portals,
-      // visited: Array.from(quadGraph.nodes.values()).filter(
-      //   (node) => node.visited
-      // ),
     };
   }
 }

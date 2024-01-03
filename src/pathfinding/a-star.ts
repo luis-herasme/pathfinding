@@ -42,7 +42,7 @@ export function aStar<NodeID, NodePosition>({
   gScore.set(start, 0);
   fScore.set(start, heuristic(graph.get(start)!.position, endNodePosition));
   openSet.enqueue(start, fScore.get(start)!);
-  const maxVisited = 100000
+  const maxVisited = 1000000;
   let visited = 0;
 
   while (!openSet.isEmpty()) {
@@ -81,10 +81,7 @@ export function aStar<NodeID, NodePosition>({
           if (!neighborNode) {
             throw new Error(`Neighbor node does not exist: ${neighbor.nodeId}`);
           }
-          hValue = heuristic(
-            neighborNode.position,
-            endNodePosition
-          );
+          hValue = heuristic(neighborNode.position, endNodePosition);
           hCache.set(neighbor.nodeId, hValue);
         }
 

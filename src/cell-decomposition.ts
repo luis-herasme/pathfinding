@@ -68,7 +68,7 @@ export class CellDecomposition {
   }
 
   // Get the leave that contains the given point
-  getLeaf(point: Vector2): CellDecomposition | null {
+  getLeaf(point: { x: number; y: number }): CellDecomposition | null {
     if (!this.bbox.containsPoint(point)) {
       return null;
     }

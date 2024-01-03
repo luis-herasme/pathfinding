@@ -65,13 +65,13 @@ export class World {
     velocity: number;
   }) {
     const bodies: Body[] = [];
-    bodies.push(
-      new CircleBody({
-        radius: 100,
-        position: new Vector2(100, 100),
-        velocity: new Vector2(0, 0),
-      })
-    );
+    // bodies.push(
+    //   new CircleBody({
+    //     radius: 100,
+    //     position: new Vector2(100, 100),
+    //     velocity: new Vector2(0, 0),
+    //   })
+    // );
     for (let i = 0; i < numberOfBodies; i++) {
       const x = size + Math.random() * (worldBounds.maxX - 2 * size);
       const y = size + Math.random() * (worldBounds.maxY - 2 * size);
@@ -80,7 +80,12 @@ export class World {
         bodies.push(
           new BoxBody({
             velocity: Vector2.random(velocity),
-            box: new Box2D(x, y, size, size),
+            box: new Box2D(
+              x,
+              y,
+              size / 2 + (Math.random() * size) / 2,
+              size / 2 + (Math.random() * size) / 2
+            ),
           })
         );
       } else {
