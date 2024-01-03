@@ -42,15 +42,8 @@ export function aStar<NodeID, NodePosition>({
   gScore.set(start, 0);
   fScore.set(start, heuristic(graph.get(start)!.position, endNodePosition));
   openSet.enqueue(start, fScore.get(start)!);
-  const maxVisited = 1000000;
-  let visited = 0;
 
   while (!openSet.isEmpty()) {
-    visited++;
-    if (visited > maxVisited) {
-      console.warn(`A* visited more than ${maxVisited} nodes`);
-      return null;
-    }
     const currentNodeID = openSet.dequeue()!.value;
 
     if (currentNodeID === end) {
@@ -58,7 +51,6 @@ export function aStar<NodeID, NodePosition>({
     }
 
     const currentNode = graph.get(currentNodeID)!;
-    // currentNode.visited = true;
 
     for (const neighbor of currentNode.neighbors) {
       if (invalidNodes.has(neighbor.nodeId)) {
