@@ -98,21 +98,6 @@ scene.onUpdate = () => {
     );
   }
 
-  // Draw a line conecting the left of the portals
-  for (let i = 0; i < portals.length - 1; i++) {
-    const start = portals[i].left;
-    const end = portals[i + 1].left;
-    render.drawLine(start.x, start.y, end.x, end.y, "red", 2);
-  }
-
-  // Draw a line conecting the right of the portals
-  for (let i = 0; i < portals.length - 1; i++) {
-    const start = portals[i].right;
-    const end = portals[i + 1].right;
-    render.drawLine(start.x, start.y, end.x, end.y, "blue", 2);
-  }
-
-  // Fill the polygon resulting from the portals
   for (let i = 0; i < portals.length - 1; i++) {
     const startRight = portals[i].right;
     const endRight = portals[i + 1].right;
@@ -130,6 +115,20 @@ scene.onUpdate = () => {
       startLeft.y,
     ];
 
+    // Draw a line conecting the left of the portals
+    render.drawLine(startLeft.x, startLeft.y, endLeft.x, endLeft.y, "red", 2);
+
+    // Draw a line conecting the right of the portals
+    render.drawLine(
+      startRight.x,
+      startRight.y,
+      endRight.x,
+      endRight.y,
+      "blue",
+      2
+    );
+
+    // Fill the polygon resulting from the portals
     Render.drawPolygon(render.context, vertices, "rgba(255, 255, 255, 0.25)");
   }
 
