@@ -142,8 +142,8 @@ export class QuadPathfinder {
       start: startCell.getID(),
       end: endCell.getID(),
       graph: quadGraph,
-      heuristic: (start, end) => start.distanceTo(end),
-      invalidNodes: new Set(),
+      heuristic: (start, end) => start.distanceTo(end) ** 2,
+      // invalidNodes: new Set(),
     });
 
     if (!path) {
@@ -161,11 +161,15 @@ export class QuadPathfinder {
       endCell.center,
     ];
 
+    // // Dispose of everything
+    // cells.clear();
+
     return {
       path: pathResult,
       leaves: root.getLeaves(),
       smothPath,
       portals,
+      pathCells,
     };
   }
 }

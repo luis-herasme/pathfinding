@@ -6,14 +6,14 @@ type aStarOptions<NodeID, NodePosition> = {
   end: NodeID;
   graph: PathfindingGraph<NodeID, NodePosition>;
   heuristic: (start: NodePosition, end: NodePosition) => number;
-  invalidNodes: Set<NodeID>;
+  // invalidNodes: Set<NodeID>;
 };
 
 export function aStar<NodeID, NodePosition>({
   start,
   end,
   graph,
-  invalidNodes,
+  // invalidNodes,
   heuristic,
 }: aStarOptions<NodeID, NodePosition>): NodeID[] | null {
   if (!graph.get(start) || !graph.get(end)) {
@@ -21,15 +21,15 @@ export function aStar<NodeID, NodePosition>({
     return null;
   }
 
-  if (invalidNodes.has(start)) {
-    console.warn(`Start node is invalid: ${start}`);
-    return null;
-  }
+  // if (invalidNodes.has(start)) {
+  //   console.warn(`Start node is invalid: ${start}`);
+  //   return null;
+  // }
 
-  if (invalidNodes.has(end)) {
-    console.warn(`End node is invalid: ${end}`);
-    return null;
-  }
+  // if (invalidNodes.has(end)) {
+  //   console.warn(`End node is invalid: ${end}`);
+  //   return null;
+  // }
 
   const hCache = new Map<NodeID, number>();
   const gScore = new Map<NodeID, number>();
@@ -53,9 +53,9 @@ export function aStar<NodeID, NodePosition>({
     const currentNode = graph.get(currentNodeID)!;
 
     for (const neighbor of currentNode.neighbors) {
-      if (invalidNodes.has(neighbor.nodeId)) {
-        continue;
-      }
+      // if (invalidNodes.has(neighbor.nodeId)) {
+      //   continue;
+      // }
 
       const tentativeGScore = gScore.get(currentNodeID)! + neighbor.weight;
 

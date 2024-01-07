@@ -13,7 +13,20 @@ export interface Obstacle {
   completelyContainsBox(box: Box): boolean;
 }
 
+const interleaveBitsCache: number[][] = [];
+
 function interleaveBits(x: number, y: number): number {
+  // if (!interleaveBitsCache[x]) {
+  //   interleaveBitsCache[x] = [];
+  // } 
+  
+  // if (interleaveBitsCache[x][y]) {
+  //   return interleaveBitsCache[x][y];
+  // }
+
+  // const inputX = x;
+  // const inputY = y;
+
   let result = 0;
   for (let i = 0; 0 < x || 0 < y; i++) {
     if (x > 0) {
@@ -25,6 +38,9 @@ function interleaveBits(x: number, y: number): number {
       y >>= 1;
     }
   }
+
+  // interleaveBitsCache[inputX][inputY] = result;
+
   return result;
 }
 
@@ -144,6 +160,7 @@ export class CellDecomposition {
 
     if (!this.occupied && !this.divided) {
       cells.push(this);
+      return;
     }
 
     if (this.topLeft) {

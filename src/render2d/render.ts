@@ -2,7 +2,7 @@ import { Box2D } from "../box";
 import { Triangle } from "../navmesh/triangle";
 import { Vector2 } from "../vector";
 
-class Render {
+class Render2D {
   context: CanvasRenderingContext2D;
   clearColor: string = "#000";
   canvas: HTMLCanvasElement;
@@ -128,4 +128,4 @@ class Render {
   }
 }
 
-export default Render;
+export default Render2D;

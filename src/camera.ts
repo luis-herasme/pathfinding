@@ -1,6 +1,6 @@
 import { Vector2 } from "./vector";
 import { keysDown } from "./input";
-import Render from "./render/render";
+import Render2D from "./render2d/render";
 
 export function getTransformedPoint(
   x: number,
@@ -17,9 +17,9 @@ export class Camera {
   private acceleration: Vector2 = new Vector2(0, 0);
   private frictionCoefficient = 4000;
   private speed = 6000;
-  private render: Render;
+  private render: Render2D;
 
-  constructor(render: Render) {
+  constructor(render: Render2D) {
     this.render = render;
     window.addEventListener("wheel", this.onWheel);
   }

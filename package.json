@@ -11,12 +11,14 @@
   "devDependencies": {
     "@types/earcut": "^2.1.4",
     "@types/stats.js": "^0.17.3",
+    "@types/three": "^0.160.0",
     "typescript": "^5.2.2",
     "vite": "^5.0.8"
   },
   "dependencies": {
     "earcut": "^2.2.4",
     "polygon-clipping": "^0.15.7",
-    "stats.js": "^0.17.0"
+    "stats.js": "^0.17.0",
+    "three": "^0.160.0"
   }
 }
