@@ -22,11 +22,7 @@ export class CircleBody implements Obstacle, Body {
     this.radius = radius;
     this.position = position;
     this.velocity = velocity;
-    this.indicator = createCylinderIndicator({
-      x: position.x,
-      y: position.y,
-      radius,
-    });
+    this.indicator = createCylinderIndicator(radius);
   }
 
   collideWithBox(box: Box2D) {

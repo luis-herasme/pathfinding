@@ -65,27 +65,19 @@ export function createBoxIndicator(box: Box2D): THREE.Mesh {
   return mesh;
 }
 
-export function createCylinderIndicator({
-  x,
-  y,
-  radius,
-}: {
-  x: number;
-  y: number;
-  radius: number;
-}): THREE.Group {
+export function createCylinderIndicator(radius: number): THREE.Group {
   const group = new THREE.Group();
   const geometry = new THREE.CylinderGeometry(radius, radius, 20);
   geometry.translate(0, 10, 0);
-//   const material = new THREE.MeshBasicMaterial({ 
-//     color: 0xff0000,
-//     depthWrite: false,
-//     // transparent: true,
-//     // opacity: 0.75
-//   });
-//   const sphere = new THREE.Mesh(geometry, material);
-//   group.add(sphere);
-// sphere.renderOrder = 1;
+  //   const material = new THREE.MeshBasicMaterial({
+  //     color: 0xff0000,
+  //     depthWrite: false,
+  //     // transparent: true,
+  //     // opacity: 0.75
+  //   });
+  //   const sphere = new THREE.Mesh(geometry, material);
+  //   group.add(sphere);
+  // sphere.renderOrder = 1;
   const wireframe = new THREE.Mesh(
     geometry,
     new THREE.MeshBasicMaterial({
@@ -94,7 +86,7 @@ export function createCylinderIndicator({
     })
   );
   group.add(wireframe);
-  
+
   return group;
 }
 
@@ -128,14 +120,26 @@ export function drawBBOX(box: Box2D, color = 0xff0000) {
 export function createBoxGeometry(box: Box2D, y: number) {
   return [
     // Top left triangle
-    box.x, y, box.y,
-    box.x + box.width, y, box.y,
-    box.x, y, box.y + box.height,
+    box.x,
+    y,
+    box.y,
+    box.x + box.width,
+    y,
+    box.y,
+    box.x,
+    y,
+    box.y + box.height,
 
     // Bottom right triangle
-    box.x + box.width, y, box.y,
-    box.x + box.width, y, box.y + box.height,
-    box.x, y, box.y + box.height,
+    box.x + box.width,
+    y,
+    box.y,
+    box.x + box.width,
+    y,
+    box.y + box.height,
+    box.x,
+    y,
+    box.y + box.height,
   ] as const;
 }
 
