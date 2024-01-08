@@ -71,23 +71,27 @@ export class CircleBody implements Obstacle, Body {
   collideWithWorldBounds(worldBounds: Bounds): void {
     if (this.position.x + this.radius > worldBounds.maxX) {
       this.velocity.x *= -1;
+      this.position.x = worldBounds.maxX - this.radius;
     }
 
     if (this.position.y + this.radius > worldBounds.maxY) {
       this.velocity.y *= -1;
+      this.position.y = worldBounds.maxY - this.radius;
     }
 
     if (this.position.x - this.radius < worldBounds.minX) {
       this.velocity.x *= -1;
+      this.position.x = worldBounds.minX + this.radius;
     }
 
     if (this.position.y - this.radius < worldBounds.minY) {
       this.velocity.y *= -1;
+      this.position.y = worldBounds.minY + this.radius;
     }
   }
 
-  update() {
-    this.position.add(this.velocity);
+  update(dt: number) {
+    this.position.add(this.velocity.clone().multiplyByScalar(dt));
     this.indicator.position.set(this.position.x, 1, this.position.y);
   }
 }

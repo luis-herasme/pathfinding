@@ -1,18 +1,12 @@
-import { Bounds, World } from "./bodies/world";
-import { Box2D } from "./box";
-import { getTransformedPoint } from "./camera";
-import { planeGraphBuilder } from "./graph-builder";
-import { aStar } from "./pathfinding/a-star";
+import { World } from "./bodies/world";
 import { QuadPathfinder } from "./quad-pathfinder";
-import Render2D from "./render2d/render";
-import { createBoxGeometry, createBoxOutlineGeometry } from "./render3d/render";
+import { createBoxGeometry } from "./render3d/render";
 import { SceneManager } from "./scene";
 import { Vector2 } from "./vector";
-import * as THREE from "three";
-// const render = new Render2D();
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
-import * as BufferGeometryUtils from "three/addons/utils/BufferGeometryUtils.js";
 import GUI from "three/examples/jsm/libs/lil-gui.module.min.js";
+import * as BufferGeometryUtils from "three/addons/utils/BufferGeometryUtils.js";
+import * as THREE from "three";
 
 const worldBounds = {
   minX: 0,
@@ -25,7 +19,7 @@ const world = World.createRandomWorld({
   worldBounds: worldBounds,
   numberOfBodies: 30,
   size: 50,
-  velocity: 0.1,
+  velocity: 200,
 });
 
 const scene = new THREE.Scene();
@@ -45,14 +39,6 @@ const camera = new THREE.PerspectiveCamera(
   0.1,
   10000
 );
-// const camera = new THREE.OrthographicCamera(
-//   window.innerWidth / -2,
-//   window.innerWidth / 2,
-//   window.innerHeight / 2,
-//   window.innerHeight / -2,
-//   0.1,
-//   10000
-// );
 
 const ground = new THREE.Mesh(
   new THREE.PlaneGeometry(1024, 1024),
@@ -75,21 +61,6 @@ document.body.appendChild(renderer.domElement);
 
 const sceneManager = new SceneManager(world);
 
-// let mouse = {
-//   x: 0,
-//   y: 0,
-// };
-
-// window.addEventListener("mousemove", (e) => {
-//   mouse = getTransformedPoint(e.offsetX, e.offsetY, render.context);
-// });
-
-const pathfinder = new QuadPathfinder({
-  bounds: worldBounds,
-  obstacles: world.bodies,
-  maxDepth: 8,
-});
-
 let lastFrameGroup: THREE.Group = new THREE.Group();
 
 const settings = {
@@ -99,6 +70,7 @@ const settings = {
   showSmothPath: true,
   showPortals: true,
   showPathRegions: true,
+  maxDepth: 8,
 };
 
 const gui = new GUI();
@@ -109,6 +81,7 @@ gui.add(settings, "showPath").name("Show raw path");
 gui.add(settings, "showSmothPath").name("Show smoth path");
 gui.add(settings, "showPortals").name("Show portals");
 gui.add(settings, "showPathRegions").name("Show path region");
+gui.add(settings, "maxDepth", 4, 8, 1).name("Max depth");
 
 function disposeGeometryHierarchy(node: THREE.Object3D) {
   for (let i = node.children.length - 1; i >= 0; i--) {
@@ -169,10 +142,12 @@ const CELLS_IN_PATH_MATERIAL = new THREE.MeshBasicMaterial({
   side: THREE.DoubleSide,
 });
 
-// console.log(`QuadPathfinder took ${endTime - startTime}ms`);
-
 sceneManager.onUpdate = () => {
-  const startTime = performance.now();
+  const pathfinder = new QuadPathfinder({
+    bounds: worldBounds,
+    obstacles: world.bodies,
+    maxDepth: settings.maxDepth,
+  });
 
   const result = pathfinder.findPath({
     start: {
@@ -185,33 +160,36 @@ sceneManager.onUpdate = () => {
     },
   });
 
-  const endTime = performance.now();
-  if (!result) {
-    return;
-  }
+  const { leaves } = result;
 
-  const { path, leaves, portals, smothPath, pathCells } = result;
+  let path, portals, smothPath, pathCells;
+
+  if (result.pathData) {
+    path = result.pathData.path;
+    portals = result.pathData.portals;
+    smothPath = result.pathData.smothPath;
+    pathCells = result.pathData.pathCells;
+  }
 
   disposeGeometryHierarchy(lastFrameGroup);
 
   if (lastFrameGroup) {
     scene.remove(lastFrameGroup);
   }
-  // Remove last frame group
-  // lastFrameGroup = new THREE.Group();
 
-  // render.fillCircle(mouse.x, mouse.y, 10, "red");
-  // world.bodies[0].position = new Vector2(mouse.x, mouse.y);
-
+  // Draw quadtree
   const occupiedGeometries: number[] = [];
   const emptyGeometries: number[] = [];
 
-  // Draw quadtree
   for (const cell of leaves) {
     if (cell.occupied) {
-      occupiedGeometries.push(...createBoxGeometry(cell.bbox, 2));
+      if (settings.showOccupied) {
+        occupiedGeometries.push(...createBoxGeometry(cell.bbox, 2));
+      }
     } else {
-      emptyGeometries.push(...createBoxGeometry(cell.bbox, 2));
+      if (settings.showEmpty) {
+        emptyGeometries.push(...createBoxGeometry(cell.bbox, 2));
+      }
     }
   }
 
@@ -239,7 +217,7 @@ sceneManager.onUpdate = () => {
     lastFrameGroup.add(emptyMesh);
   }
 
-  if (settings.showPath) {
+  if (settings.showPath && path) {
     const pathMesh = drawPathLine(path, RED_LINE_MATERIAL);
     pathMesh.position.y = 5;
     lastFrameGroup.add(pathMesh);
@@ -249,7 +227,7 @@ sceneManager.onUpdate = () => {
     lastFrameGroup.add(pathSpheres);
   }
 
-  if (settings.showSmothPath) {
+  if (settings.showSmothPath && smothPath) {
     const smothPathMesh = drawPathLine(smothPath, BLUE_LINE_MATERIAL);
     smothPathMesh.position.y = 10;
     lastFrameGroup.add(smothPathMesh);
@@ -259,7 +237,7 @@ sceneManager.onUpdate = () => {
     lastFrameGroup.add(smothPathSpheres);
   }
   const PATH_REGION_Y = 15;
-  if (settings.showPathRegions) {
+  if (settings.showPathRegions && portals) {
     const pathRegionGeometries = [];
     for (let i = 0; i < portals.length - 1; i++) {
       const startRight = portals[i].right;
@@ -310,7 +288,7 @@ sceneManager.onUpdate = () => {
     lastFrameGroup.add(pathRegionMesh);
   }
 
-  if (settings.showPortals) {
+  if (settings.showPortals && portals) {
     const rightLinePoints = [];
     const leftLinePoints = [];
     const rightToLeftLinePoints = [];
@@ -367,101 +345,28 @@ sceneManager.onUpdate = () => {
   }
 
   // Draw cells in path
-  const cellsInPathGeometries: number[] = [];
-  for (const cell of pathCells) {
-    cellsInPathGeometries.push(...createBoxGeometry(cell.bbox, 2));
+  if (pathCells) {
+    const cellsInPathGeometries: number[] = [];
+    for (const cell of pathCells) {
+      cellsInPathGeometries.push(...createBoxGeometry(cell.bbox, 2));
+    }
+
+    const cellsInPathGeometry = new THREE.BufferGeometry();
+
+    cellsInPathGeometry.setAttribute(
+      "position",
+      new THREE.Float32BufferAttribute(cellsInPathGeometries, 3)
+    );
+
+    const cellsInPathMesh = new THREE.Mesh(
+      cellsInPathGeometry,
+      CELLS_IN_PATH_MATERIAL
+    );
+
+    lastFrameGroup.add(cellsInPathMesh);
   }
-
-  const cellsInPathGeometry = new THREE.BufferGeometry();
-
-  cellsInPathGeometry.setAttribute(
-    "position",
-    new THREE.Float32BufferAttribute(cellsInPathGeometries, 3)
-  );
-
-  const cellsInPathMesh = new THREE.Mesh(
-    cellsInPathGeometry,
-    CELLS_IN_PATH_MATERIAL
-  );
-
-  lastFrameGroup.add(cellsInPathMesh);
-
   scene.add(lastFrameGroup);
 
-  // for (const cell of leaves) {
-  //   if (cell.occupied) {
-  //     render.fillRect(cell.bbox, `rgba(255, 255, 255, 0.5)`);
-  //   } else {
-  //     render.strokeRect(cell.bbox, "rgba(255,255,255,0.1)");
-  //     render.fillCircle(cell.center.x, cell.center.y, 0.5, "red");
-  //   }
-  // }
-  // // Draw path
-  // for (let i = 0; i < path.length - 1; i++) {
-  //   const start = path[i];
-  //   const end = path[i + 1];
-  //   render.drawLine(start.x, start.y, end.x, end.y, "blue", 2);
-  //   render.fillCircle(start.x, start.y, 5, "blue");
-  // }
-
-  // // Draw portals
-  // for (const portal of portals) {
-  //   render.drawLine(
-  //     portal.left.x,
-  //     portal.left.y,
-  //     portal.right.x,
-  //     portal.right.y,
-  //     "rgb(0, 255, 0)",
-  //     1
-  //   );
-  // }
-
-  // for (let i = 0; i < portals.length - 1; i++) {
-  //   const startRight = portals[i].right;
-  //   const endRight = portals[i + 1].right;
-  //   const startLeft = portals[i].left;
-  //   const endLeft = portals[i + 1].left;
-
-  //   const vertices = [
-  //     startRight.x,
-  //     startRight.y,
-  //     endRight.x,
-  //     endRight.y,
-  //     endLeft.x,
-  //     endLeft.y,
-  //     startLeft.x,
-  //     startLeft.y,
-  //   ];
-
-  //   // Draw a line conecting the left of the portals
-  //   render.drawLine(startLeft.x, startLeft.y, endLeft.x, endLeft.y, "red", 2);
-
-  //   // Draw a line conecting the right of the portals
-  //   render.drawLine(
-  //     startRight.x,
-  //     startRight.y,
-  //     endRight.x,
-  //     endRight.y,
-  //     "blue",
-  //     2
-  //   );
-
-  //   // Fill the polygon resulting from the portals
-  //   Render2D.drawPolygon(render.context, vertices, "rgba(255, 255, 255, 0.25)");
-  // }
-
-  // // Draw smoth path
-  // for (let i = 0; i < smothPath.length - 1; i++) {
-  //   const start = smothPath[i];
-  //   const end = smothPath[i + 1];
-  //   render.drawLine(start.x, start.y, end.x, end.y, "white", 2);
-  //   render.fillCircle(start.x, start.y, 5, "white");
-  // }
-
-  // Draw visited
-  // for (const cell of visited) {
-  //   render.fillCircle(cell.position.x, cell.position.y, 6, "green");
-  // }
   renderer.render(scene, camera);
 };
 
@@ -480,100 +385,21 @@ function drawPathLine(
   const line = new THREE.Line(pathGeometry, material);
   return line;
 }
+
 function drawPathPoints(path: Vector2[], material: THREE.Material): THREE.Mesh {
   const geometries = [];
   const y = 10;
   const SIZE = 5;
-  const BOX_INDICATOR = new THREE.BoxGeometry(SIZE, SIZE, SIZE);
 
   for (let i = 0; i < path.length; i++) {
-    geometries.push(
-      BOX_INDICATOR.clone().translate(path[i].x, y, path[i].y)
-    );
+    const BOX_INDICATOR = new THREE.BoxGeometry(SIZE, SIZE, SIZE);
+    geometries.push(BOX_INDICATOR.translate(path[i].x, y, path[i].y));
   }
 
   const geometry = BufferGeometryUtils.mergeGeometries(geometries);
   const mesh = new THREE.Mesh(geometry, material);
-  // Dispose geometries
-    // for (const geometry of geometries) {
-    //   geometry.dispose();
-    // }
+
   return mesh;
 }
-
-// const graph = planeGraphBuilder(1024, 1);
-// scene.onUpdate = () => {
-//   const invalidNodes = new Set<string>();
-
-//   // @ts-ignore
-//   // for (const [nodeId, node] of graph) {
-//   //   for (const body of world.bodies) {
-//   //     if (
-//   //       body.collideWithBox({
-//   //         x: node.position.x - 5,
-//   //         y: node.position.y - 5,
-//   //         width: 10,
-//   //         height: 10,
-//   //       })
-//   //     ) {
-//   //       invalidNodes.add(nodeId);
-//   //       break;
-//   //     }
-//   //   }
-//   // }
-
-//   for (const body of world.bodies) {
-//     // @ts-ignore
-//     const box: Box2D = body.box;
-//     const boxX = Math.floor(box.x);
-//     const boxY = Math.floor(box.y);
-//     const boxWidth = Math.ceil(box.width);
-//     const boxHeight = Math.ceil(box.height);
-
-//     for (let x = boxX; x < boxX + boxWidth; x++) {
-//       for (let y = boxY; y < boxY + boxHeight; y++) {
-//         const nodeId = `${x},${y}`;
-//         invalidNodes.add(nodeId);
-//       }
-//     }
-//   }
-
-//   // console.log("graph: ", graph)
-//   // console.log("Start: ", graph.get("0,0"))
-//   // console.log("End: ", graph.get("1000,1000"))
-//   const startTime = performance.now();
-//   const pathIds = aStar<string, Vector2>({
-//     start: "0,0",
-//     end: "1000,1000",
-//     graph,
-//     heuristic: (start, end) => start.distanceTo(end),
-//     invalidNodes,
-//   });
-//   const endTime = performance.now();
-
-//   console.log(`A* took ${endTime - startTime}ms`);
-
-//   if (!pathIds) {
-//     console.log("No path found");
-//     return;
-//   }
-
-//   // console.log("Path: ", pathIds);
-
-//   const path = pathIds.map((id) => graph.get(id)!.position);
-
-//   // Draw path
-//   for (let i = 0; i < path.length - 1; i++) {
-//     const start = path[i];
-//     const end = path[i + 1];
-//     render.drawLine(start.x, start.y, end.x, end.y, "blue", 2);
-//     // render.fillCircle(start.x, start.y, 5, "blue");
-//   }
-
-//   // // Draw path with a single line
-//   // const vertices = path.flatMap((node) => [node.x, node.y]);
-//   // Render.drawPolygon(render.context, vertices, "rgba(255, 255, 255, 0.25)");
-
-// };
 
 sceneManager.start();

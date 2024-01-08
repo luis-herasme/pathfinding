@@ -30,7 +30,7 @@ export class SceneManager {
   private update = () => {
     this.stats.begin();
     const dt = this.getDelta();
-    this.world.update();
+    this.world.update(dt);
 
     this.onUpdate(dt);
 

@@ -14,7 +14,7 @@ export type Bounds = {
 export type Body = {
   position: Vector2;
   velocity: Vector2;
-  update(): void;
+  update(dt: number): void;
   indicator: THREE.Object3D;
   collideWithWorldBounds(worldBounds: Bounds): void;
 } & Obstacle;
@@ -38,11 +38,11 @@ export class World {
     this.bodies.push(body);
   }
 
-  update() {
+  update(dt: number) {
     this.checkThatBodyIsInsideWorldBounds();
 
     for (let i = 0; i < this.bodies.length; i++) {
-      this.bodies[i].update();
+      this.bodies[i].update(dt);
     }
   }
 

@@ -17,8 +17,8 @@ export class BoxBody implements Obstacle, Body {
     this.indicator = createBoxIndicator(box);
   }
 
-  update() {
-    this.position.add(this.velocity);
+  update(dt: number) {
+    this.position.add(this.velocity.clone().multiplyByScalar(dt));
 
     this.box.x = this.position.x;
     this.box.y = this.position.y;
@@ -37,18 +37,22 @@ export class BoxBody implements Obstacle, Body {
   collideWithWorldBounds(worldBounds: Bounds) {
     if (this.box.x + this.box.width > worldBounds.maxX) {
       this.velocity.x *= -1;
+      this.box.x = worldBounds.maxX - this.box.width;
     }
 
     if (this.box.y + this.box.height > worldBounds.maxY) {
       this.velocity.y *= -1;
+      this.box.y = worldBounds.maxY - this.box.height;
     }
 
     if (this.box.x < worldBounds.minX) {
       this.velocity.x *= -1;
+      this.box.x = worldBounds.minX;
     }
 
     if (this.box.y < worldBounds.minY) {
       this.velocity.y *= -1;
+      this.box.y = worldBounds.minY;
     }
   }
 }

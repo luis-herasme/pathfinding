@@ -135,7 +135,10 @@ export class QuadPathfinder {
     const endCell = root.getLeaf(end);
 
     if (!startCell || !endCell || startCell.occupied || endCell.occupied) {
-      return null;
+      return {
+        leaves: root.getLeaves(),
+        pathData: null,
+      };
     }
 
     const path = aStar<number, Vector2>({
@@ -143,33 +146,45 @@ export class QuadPathfinder {
       end: endCell.getID(),
       graph: quadGraph,
       heuristic: (start, end) => start.distanceTo(end) ** 2,
-      // invalidNodes: new Set(),
     });
 
     if (!path) {
-      return null;
+      return {
+        leaves: root.getLeaves(),
+        pathData: null,
+      };
     }
 
     const pathCells = path.map((nodeId) => cells.get(nodeId)!);
     const pathResult = pathCells.map((cell) => cell.bbox.center);
     const portals = getPortals(pathCells);
 
-    const smothPath = [
-      startCell.center,
-      ...funnelPathSmoothing(pathResult, portals),
-      // Vector2.add(portals[portals.length - 1].left, portals[portals.length - 1].right).divideByScalar(2),
-      endCell.center,
-    ];
+    if (portals.length === 0) {
+      return {
+        leaves: root.getLeaves(),
+        pathData: null,
+      };
+    }
 
-    // // Dispose of everything
-    // cells.clear();
+    let smothPath: Vector2[] = [];
+
+    if (startCell && endCell && !startCell.occupied && !endCell.occupied) {
+      smothPath = [
+        startCell.center,
+        ...funnelPathSmoothing(pathResult, portals),
+        // Vector2.add(portals[portals.length - 1].left, portals[portals.length - 1].right).divideByScalar(2),
+        endCell.center,
+      ];
+    }
 
     return {
-      path: pathResult,
       leaves: root.getLeaves(),
-      smothPath,
-      portals,
-      pathCells,
+      pathData: {
+        path: pathResult,
+        smothPath,
+        portals,
+        pathCells,
+      },
     };
   }
 }
