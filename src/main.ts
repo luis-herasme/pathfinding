@@ -55,7 +55,7 @@ camera.position.set(0, 1000, 1000);
 camera.lookAt(0, 0, 0);
 
 const renderer = new THREE.WebGLRenderer();
-const controls = new OrbitControls(camera, renderer.domElement);
+new OrbitControls(camera, renderer.domElement);
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
