@@ -77,7 +77,7 @@ const settings = {
   showSmothPath: true,
   showPortals: true,
   showPathRegions: true,
-  maxDepth: 8,
+  maxDepth: 6,
 };
 
 const gui = new GUI();
