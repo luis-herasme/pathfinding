@@ -34,19 +34,6 @@ export function createMesh(points: number[][], color = 0xff0000): THREE.Mesh {
   return new THREE.Mesh(geometry, material);
 }
 
-const circle = await getTexture("circle.png");
-export function createNodeIndicator({ x, y }: { x: number; y: number }) {
-  const material = new THREE.SpriteMaterial({
-    map: circle,
-    color: 0xffffff,
-  });
-
-  const sprite = new THREE.Sprite(material);
-  sprite.scale.set(0.25, 0.25, 0.25);
-  sprite.position.set(x, 1, y);
-  return sprite;
-}
-
 export function createBoxIndicator(box: Box2D): THREE.Mesh {
   const geometry = new THREE.BoxGeometry(box.width, 20, box.height);
   geometry.translate(box.width / 2, 10, box.height / 2);
@@ -96,11 +83,11 @@ export function drawPolygonOutline(polygon: Polygon): THREE.Group {
   const line = createLine(vertices);
   group.add(line);
 
-  for (const vertex of vertices) {
-    const sprite = createNodeIndicator({ x: vertex[0], y: vertex[2] });
-    group.add(sprite);
-    sprite.material.color.setHex(0xff0000);
-  }
+  // for (const vertex of vertices) {
+  //   const sprite = createNodeIndicator({ x: vertex[0], y: vertex[2] });
+  //   group.add(sprite);
+  //   sprite.material.color.setHex(0xff0000);
+  // }
 
   return group;
 }
