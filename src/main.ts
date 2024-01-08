@@ -57,6 +57,13 @@ camera.lookAt(0, 0, 0);
 const renderer = new THREE.WebGLRenderer();
 new OrbitControls(camera, renderer.domElement);
 renderer.setSize(window.innerWidth, window.innerHeight);
+
+window.addEventListener("resize", () => {
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+});
+
 document.body.appendChild(renderer.domElement);
 
 const sceneManager = new SceneManager(world);
