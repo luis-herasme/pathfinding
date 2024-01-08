@@ -38,21 +38,25 @@ export class BoxBody implements Obstacle, Body {
     if (this.box.x + this.box.width > worldBounds.maxX) {
       this.velocity.x *= -1;
       this.box.x = worldBounds.maxX - this.box.width;
+      this.position.x = this.box.x;
     }
 
     if (this.box.y + this.box.height > worldBounds.maxY) {
       this.velocity.y *= -1;
       this.box.y = worldBounds.maxY - this.box.height;
+      this.position.y = this.box.y;
     }
 
     if (this.box.x < worldBounds.minX) {
       this.velocity.x *= -1;
       this.box.x = worldBounds.minX;
+      this.position.x = this.box.x;
     }
 
     if (this.box.y < worldBounds.minY) {
       this.velocity.y *= -1;
       this.box.y = worldBounds.minY;
+      this.position.y = this.box.y;
     }
   }
 }
