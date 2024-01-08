@@ -1,6 +1,5 @@
 import { Box2D } from "../box";
 import { Polygon } from "../polygon";
-import { getTexture } from "./get-texture";
 import * as THREE from "three";
 
 export function createLine(points: number[][], color = 0xff0000) {
