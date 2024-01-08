@@ -38,7 +38,6 @@ class Path<NodeID, NodePosition> {
       start: this.start,
       end: this.end,
       graph: this.graph,
-      invalidNodes: new Set(),
       heuristic: this.heuristic,
     });
   }
