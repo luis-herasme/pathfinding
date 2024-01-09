@@ -1,6 +1,6 @@
 import { Box2D } from "../box";
 import { Obstacle } from "../cell-decomposition";
-import { Vector2 } from "../vector";
+import { Vector2 } from "three";
 import { BoxBody } from "./box";
 import { CircleBody } from "./circle";
 
@@ -72,7 +72,10 @@ export class World {
       if (Math.random() > 0.5) {
         bodies.push(
           new BoxBody({
-            velocity: Vector2.random(velocity),
+            velocity: new Vector2(
+              velocity * (Math.random() - 0.5),
+              velocity * (Math.random() - 0.5)
+            ),
             box: new Box2D(
               x,
               y,
@@ -84,7 +87,10 @@ export class World {
       } else {
         bodies.push(
           new CircleBody({
-            velocity: Vector2.random(velocity),
+            velocity: new Vector2(
+              velocity * (Math.random() - 0.5),
+              velocity * (Math.random() - 0.5)
+            ),
             radius: size / 2 + (Math.random() * size) / 2,
             position: new Vector2(x, y),
           })

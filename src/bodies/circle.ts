@@ -1,14 +1,14 @@
 import { Box2D } from "../box";
-import { Vector2 } from "../vector";
+import { Vector2 } from "three";
 import { Body, Bounds } from "./world";
 import { Obstacle } from "../cell-decomposition";
-import { createCylinderIndicator } from "../render3d/render";
+import { createCylinderIndicator } from "../render";
 
 export class CircleBody implements Obstacle, Body {
-  radius: number;
+  private radius: number;
   position: Vector2;
   velocity: Vector2;
-  indicator: THREE.Group;
+  indicator: THREE.Mesh;
 
   constructor({
     radius,
@@ -87,7 +87,7 @@ export class CircleBody implements Obstacle, Body {
   }
 
   update(dt: number) {
-    this.position.add(this.velocity.clone().multiplyByScalar(dt));
+    this.position.add(this.velocity.clone().multiplyScalar(dt));
     this.indicator.position.set(this.position.x, 1, this.position.y);
   }
 }

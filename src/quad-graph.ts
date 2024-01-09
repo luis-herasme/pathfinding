@@ -1,5 +1,5 @@
 import { Box2D } from "./box";
-import { Vector2 } from "./vector";
+import { Vector2 } from "three";
 import { CellDecomposition } from "./cell-decomposition";
 import { Node, PathfindingGraph } from "./pathfinding/pathfinding-graph";
 

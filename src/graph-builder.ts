@@ -1,5 +1,5 @@
 import { PathfindingGraph } from "./pathfinding/pathfinding-graph";
-import { Vector2 } from "./vector";
+import { Vector2 } from "three";
 
 export function planeGraphBuilder(
   gridSize: number,

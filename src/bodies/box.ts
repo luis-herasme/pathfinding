@@ -1,11 +1,11 @@
 import { Box2D } from "../box";
-import { Vector2 } from "../vector";
+import { Vector2 } from "three";
 import { Bounds, Body } from "./world";
 import { Obstacle } from "../cell-decomposition";
-import { createBoxIndicator } from "../render3d/render";
+import { createBoxIndicator } from "../render";
 
 export class BoxBody implements Obstacle, Body {
-  box: Box2D;
+  private box: Box2D;
   velocity: Vector2;
   position: Vector2;
   indicator: THREE.Mesh;
@@ -18,7 +18,7 @@ export class BoxBody implements Obstacle, Body {
   }
 
   update(dt: number) {
-    this.position.add(this.velocity.clone().multiplyByScalar(dt));
+    this.position.add(this.velocity.clone().multiplyScalar(dt));
 
     this.box.x = this.position.x;
     this.box.y = this.position.y;

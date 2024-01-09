@@ -1,4 +1,4 @@
-import { Vector2 } from "./vector";
+import { Vector2 } from "three";
 
 export class Box2D {
   x: number;

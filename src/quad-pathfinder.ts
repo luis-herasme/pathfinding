@@ -3,7 +3,7 @@ import { Box2D } from "./box";
 import { QuadGraph } from "./quad-graph";
 import { aStar } from "./pathfinding/a-star";
 import { Bounds } from "./bodies/world";
-import { Vector2 } from "./vector";
+import { Vector2 } from "three";
 import { funnelPathSmoothing } from "./funnel";
 
 function getPortals(path: CellDecomposition[]): {

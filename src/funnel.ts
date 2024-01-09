@@ -1,4 +1,4 @@
-import { Vector2 } from "./vector";
+import { Vector2 } from "three";
 
 function triarea2(a: Vector2, b: Vector2, c: Vector2) {
   return (a.x - c.x) * (b.y - c.y) - (a.y - c.y) * (b.x - c.x);

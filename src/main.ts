@@ -1,8 +1,8 @@
 import { World } from "./bodies/world";
 import { QuadPathfinder } from "./quad-pathfinder";
-import { createBoxGeometry } from "./render3d/render";
+import { createBoxGeometry } from "./render";
 import { SceneManager } from "./scene";
-import { Vector2 } from "./vector";
+import { Vector2 } from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import GUI from "three/examples/jsm/libs/lil-gui.module.min.js";
 import * as BufferGeometryUtils from "three/addons/utils/BufferGeometryUtils.js";
