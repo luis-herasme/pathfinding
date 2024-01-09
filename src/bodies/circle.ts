@@ -1,11 +1,11 @@
 import { Box2D } from "../box";
 import { Vector2 } from "three";
-import { Body, Bounds } from "./world";
+import { Body } from "./world";
 import { Obstacle } from "../cell-decomposition";
 import { createCylinderIndicator } from "../render";
 
 export class CircleBody implements Obstacle, Body {
-  private radius: number;
+  radius: number;
   position: Vector2;
   velocity: Vector2;
   indicator: THREE.Mesh;
@@ -27,12 +27,13 @@ export class CircleBody implements Obstacle, Body {
 
   collideWithBox(box: Box2D) {
     const closestX = Math.max(
-      box.x,
-      Math.min(this.position.x, box.x + box.width)
+      box.minX,
+      Math.min(this.position.x, box.minX + box.width)
     );
+
     const closestY = Math.max(
-      box.y,
-      Math.min(this.position.y, box.y + box.height)
+      box.minY,
+      Math.min(this.position.y, box.minY + box.height)
     );
 
     const distanceX = this.position.x - closestX;
@@ -45,10 +46,10 @@ export class CircleBody implements Obstacle, Body {
 
   completelyContainsBox(box: Box2D) {
     const rectCorners = [
-      [box.x, box.y],
-      [box.x + box.width, box.y],
-      [box.x, box.y + box.height],
-      [box.x + box.width, box.y + box.height],
+      [box.minX, box.minY],
+      [box.maxX, box.minY],
+      [box.minX, box.maxY],
+      [box.maxX, box.maxY],
     ];
 
     for (const corner of rectCorners) {
@@ -64,7 +65,7 @@ export class CircleBody implements Obstacle, Body {
     return true;
   }
 
-  collideWithWorldBounds(worldBounds: Bounds): void {
+  collideWithWorldBounds(worldBounds: Box2D): void {
     if (this.position.x + this.radius > worldBounds.maxX) {
       this.velocity.x *= -1;
       this.position.x = worldBounds.maxX - this.radius;

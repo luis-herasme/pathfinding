@@ -1,16 +1,9 @@
 import { Box2D } from "./box";
 import { Vector2 } from "three";
 
-type Box = {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-};
-
 export interface Obstacle {
-  collideWithBox(box: Box): boolean;
-  completelyContainsBox(box: Box): boolean;
+  collideWithBox(box: Box2D): boolean;
+  completelyContainsBox(box: Box2D): boolean;
 }
 
 function interleaveBits(x: number, y: number): number {
@@ -171,28 +164,48 @@ export class CellDecomposition {
     const height = this.bbox.height / 2;
 
     this.topLeft = new CellDecomposition({
-      bbox: new Box2D(this.bbox.x, this.bbox.y, width, height),
+      bbox: new Box2D(
+        this.bbox.minX,
+        this.bbox.minY,
+        this.bbox.minX + width,
+        this.bbox.minY + height
+      ),
       cells: this.cells,
       depth: this.depth + 1,
       maxDepth: this.maxDepth,
     });
 
     this.topRight = new CellDecomposition({
-      bbox: new Box2D(this.bbox.x + width, this.bbox.y, width, height),
+      bbox: new Box2D(
+        this.bbox.minX + width,
+        this.bbox.minY,
+        this.bbox.maxX,
+        this.bbox.minY + height
+      ),
       cells: this.cells,
       depth: this.depth + 1,
       maxDepth: this.maxDepth,
     });
 
     this.bottomLeft = new CellDecomposition({
-      bbox: new Box2D(this.bbox.x, this.bbox.y + height, width, height),
+      bbox: new Box2D(
+        this.bbox.minX,
+        this.bbox.minY + height,
+        this.bbox.minX + width,
+        this.bbox.maxY
+      ),
       cells: this.cells,
       depth: this.depth + 1,
       maxDepth: this.maxDepth,
     });
 
     this.bottomRight = new CellDecomposition({
-      bbox: new Box2D(this.bbox.x + width, this.bbox.y + height, width, height),
+      bbox: new Box2D(
+        this.bbox.minX + width,
+        this.bbox.minY + height,
+        this.bbox.maxX,
+        this.bbox.maxY
+      ),
       cells: this.cells,
       depth: this.depth + 1,
       maxDepth: this.maxDepth,

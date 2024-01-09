@@ -48,31 +48,31 @@ export class QuadGraph implements PathfindingGraph<number, Vector2> {
     //   bbox.height + 2
     // );
     const neighborsBoxLeft = new Box2D(
-      bbox.x - 1,
-      bbox.y,
-      1,
-      bbox.height
+      bbox.minX - 1,
+      bbox.minY,
+      bbox.minX,
+      bbox.maxY
     );
 
     const neighborsBoxRight = new Box2D(
-      bbox.x + bbox.width,
-      bbox.y,
-      1,
-      bbox.height
+      bbox.maxX,
+      bbox.minY,
+      bbox.maxX + 1,
+      bbox.maxY
     );
 
     const neighborsBoxTop = new Box2D(
-      bbox.x,
-      bbox.y - 1,
-      bbox.width,
-      1
+      bbox.minX,
+      bbox.minY - 1,
+      bbox.maxX,
+      bbox.minY
     );
 
     const neighborsBoxBottom = new Box2D(
-      bbox.x,
-      bbox.y + bbox.height,
-      bbox.width,
-      1
+      bbox.minX,
+      bbox.maxY,
+      bbox.maxX,
+      bbox.maxY + 1
     );
 
     const neighborCells: CellDecomposition[] = [];

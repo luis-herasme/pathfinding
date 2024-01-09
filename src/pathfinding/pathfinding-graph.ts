@@ -1,6 +1,4 @@
 export type Node<NodeID, NodePosition> = {
-  // visited: boolean;
-  //
   position: NodePosition;
   neighbors: {
     nodeId: NodeID;

@@ -1,77 +1,58 @@
 import { Vector2 } from "three";
 
 export class Box2D {
-  x: number;
-  y: number;
+  minX: number;
+  minY: number;
+  maxX: number;
+  maxY: number;
+
   width: number;
   height: number;
 
-  constructor(x: number, y: number, width: number, height: number) {
-    this.x = x;
-    this.y = y;
-    this.width = width;
-    this.height = height;
+  constructor(x: number, y: number, maxX: number, maxY: number) {
+    this.minX = x;
+    this.minY = y;
+    this.maxX = maxX;
+    this.maxY = maxY;
+    this.width = maxX - x;
+    this.height = maxY - y;
   }
 
   get center(): Vector2 {
-    return new Vector2(this.x + this.width / 2, this.y + this.height / 2);
+    return new Vector2(this.minX + this.width / 2, this.minY + this.height / 2);
+  }
+
+  setPosition(x: number, y: number) {
+    this.minX = x;
+    this.minY = y;
+    this.maxX = x + this.width;
+    this.maxY = y + this.height;
   }
 
   containsPoint(point: { x: number; y: number }) {
     return (
-      point.x >= this.x &&
-      point.x <= this.x + this.width &&
-      point.y >= this.y &&
-      point.y <= this.y + this.height
+      point.x >= this.minX &&
+      point.x <= this.maxX &&
+      point.y >= this.minY &&
+      point.y <= this.maxY
     );
   }
 
   collideWithBox(box: Box2D) {
     return (
-      this.x < box.x + box.width &&
-      this.x + this.width > box.x &&
-      this.y < box.y + box.height &&
-      this.y + this.height > box.y
+      this.minX < box.maxX &&
+      this.maxX > box.minX &&
+      this.minY < box.maxY &&
+      this.maxY > box.minY
     );
   }
 
   containsBox(box: Box2D) {
     return (
-      this.x <= box.x &&
-      this.x + this.width >= box.x + box.width &&
-      this.y <= box.y &&
-      this.y + this.height >= box.y + box.height
+      this.minX <= box.minX &&
+      this.maxX >= box.maxX &&
+      this.minY <= box.minY &&
+      this.maxY >= box.maxY
     );
-  }
-
-  collisions(boxes: Box2D): {
-    top: boolean;
-    bottom: boolean;
-    left: boolean;
-    right: boolean;
-  } {
-    return {
-      top: this.y < boxes.y + boxes.height && this.y > boxes.y,
-      bottom: this.y + this.height > boxes.y && this.y + this.height < boxes.y,
-      left: this.x < boxes.x + boxes.width && this.x > boxes.x,
-      right: this.x + this.width > boxes.x && this.x + this.width < boxes.x,
-    };
-  }
-
-  getVertices(): [number, number][] {
-    // return [
-    //   [this.x, this.y],
-    //   [this.x + this.width, this.y],
-    //   [this.x + this.width, this.y + this.height],
-    //   [this.x, this.y + this.height],
-    // ];
-    const PADDING = 5;
-
-    return [
-      [this.x + PADDING, this.y + PADDING],
-      [this.x + this.width - PADDING, this.y + PADDING],
-      [this.x + this.width - PADDING, this.y + this.height - PADDING],
-      [this.x + PADDING, this.y + this.height - PADDING],
-    ];
   }
 }

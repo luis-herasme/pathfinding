@@ -13,7 +13,7 @@ export function createBoxIndicator(box: Box2D): THREE.Mesh {
     })
   );
 
-  mesh.position.set(box.x + box.width / 2, 1, box.y + box.height / 2);
+  mesh.position.set(box.minX + box.width / 2, 1, box.minY + box.height / 2);
   return mesh;
 }
 
@@ -35,43 +35,35 @@ export function createCylinderIndicator(radius: number): THREE.Mesh {
 export function createBoxGeometry(box: Box2D, y: number) {
   return [
     // Top left triangle
-    box.x,
+    box.minX,
     y,
-    box.y,
-    box.x + box.width,
+    box.minY,
+    box.maxX,
     y,
-    box.y,
-    box.x,
+    box.minY,
+    box.minX,
     y,
-    box.y + box.height,
+    box.maxY,
 
     // Bottom right triangle
-    box.x + box.width,
+    box.maxX,
     y,
-    box.y,
-    box.x + box.width,
+    box.minY,
+    box.maxX,
     y,
-    box.y + box.height,
-    box.x,
+    box.maxY,
+    box.minX,
     y,
-    box.y + box.height,
+    box.maxY,
   ] as const;
 }
 
 export function createBoxOutlineGeometry(box: Box2D): THREE.BufferGeometry {
-  const points = [
-    [box.x, 0, box.y],
-    [box.x + box.width, 0, box.y],
-    [box.x + box.width, 0, box.y + box.height],
-    [box.x, 0, box.y + box.height],
-    [box.x, 0, box.y],
-  ];
-
   const geometry = new THREE.BufferGeometry();
 
   geometry.setAttribute(
     "position",
-    new THREE.Float32BufferAttribute(points.flat(), 3)
+    new THREE.Float32BufferAttribute(createBoxGeometry(box, 0), 3)
   );
 
   return geometry;

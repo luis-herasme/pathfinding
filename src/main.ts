@@ -7,13 +7,9 @@ import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import GUI from "three/examples/jsm/libs/lil-gui.module.min.js";
 import * as BufferGeometryUtils from "three/addons/utils/BufferGeometryUtils.js";
 import * as THREE from "three";
+import { Box2D } from "./box";
 
-const worldBounds = {
-  minX: 0,
-  minY: 0,
-  maxX: 1024,
-  maxY: 1024,
-};
+const worldBounds = new Box2D(0, 0, 1024, 1024);
 
 const world = World.createRandomWorld({
   worldBounds: worldBounds,

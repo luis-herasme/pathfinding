@@ -4,30 +4,23 @@ import { Vector2 } from "three";
 import { BoxBody } from "./box";
 import { CircleBody } from "./circle";
 
-export type Bounds = {
-  minX: number;
-  maxX: number;
-  minY: number;
-  maxY: number;
-};
-
 export type Body = {
   position: Vector2;
   velocity: Vector2;
   update(dt: number): void;
   indicator: THREE.Object3D;
-  collideWithWorldBounds(worldBounds: Bounds): void;
+  collideWithWorldBounds(worldBounds: Box2D): void;
 } & Obstacle;
 
 export class World {
   bodies: Body[] = [];
-  private worldBounds: Bounds;
+  private worldBounds: Box2D;
 
   constructor({
     worldBounds,
     bodies,
   }: {
-    worldBounds: Bounds;
+    worldBounds: Box2D;
     bodies: Body[];
   }) {
     this.bodies = bodies;
@@ -58,7 +51,7 @@ export class World {
     size,
     velocity,
   }: {
-    worldBounds: Bounds;
+    worldBounds: Box2D;
     numberOfBodies: number;
     size: number;
     velocity: number;
@@ -79,8 +72,8 @@ export class World {
             box: new Box2D(
               x,
               y,
-              size / 2 + (Math.random() * size) / 2,
-              size / 2 + (Math.random() * size) / 2
+              x + size / 2 + (Math.random() * size) / 2,
+              y + size / 2 + (Math.random() * size) / 2
             ),
           })
         );
