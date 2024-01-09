@@ -8,6 +8,7 @@ export interface Obstacle {
 
 function interleaveBits(x: number, y: number): number {
   let result = 0;
+
   for (let i = 0; 0 < x || 0 < y; i++) {
     if (x > 0) {
       result |= (x & 1) << (2 * i);
@@ -18,6 +19,7 @@ function interleaveBits(x: number, y: number): number {
       y >>= 1;
     }
   }
+
   return result;
 }
 

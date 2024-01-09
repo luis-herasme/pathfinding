@@ -5,8 +5,6 @@ import { BoxBody } from "./box";
 import { CircleBody } from "./circle";
 
 export type Body = {
-  position: Vector2;
-  velocity: Vector2;
   update(dt: number): void;
   indicator: THREE.Object3D;
   collideWithWorldBounds(worldBounds: Box2D): void;

@@ -55,4 +55,30 @@ export class Box2D {
       this.maxY >= box.maxY
     );
   }
+
+  getGeometry() {
+    return [
+      // Top left triangle
+      this.minX,
+      0,
+      this.minY,
+      this.maxX,
+      0,
+      this.minY,
+      this.minX,
+      0,
+      this.maxY,
+
+      // Bottom right triangle
+      this.maxX,
+      0,
+      this.minY,
+      this.maxX,
+      0,
+      this.maxY,
+      this.minX,
+      0,
+      this.maxY,
+    ] as const;
+  }
 }

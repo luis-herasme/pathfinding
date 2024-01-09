@@ -1,40 +1,36 @@
 import { World } from "./bodies/world";
 import { QuadPathfinder } from "./quad-pathfinder";
-import { createBoxGeometry } from "./render";
 import { SceneManager } from "./scene";
-import { Vector2 } from "three";
-import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import GUI from "three/examples/jsm/libs/lil-gui.module.min.js";
-import * as BufferGeometryUtils from "three/addons/utils/BufferGeometryUtils.js";
 import * as THREE from "three";
 import { Box2D } from "./box";
+import { drawPathLine, drawPathPoints } from "./render";
+import {
+  BASIC_BLUE_MATERIAL,
+  BASIC_RED_MATERIAL,
+  BLUE_LINE_MATERIAL,
+  CELLS_IN_PATH_MATERIAL,
+  EMPTY_MATERIAL,
+  GREEN_LINE_MATERIAL,
+  OCCUPIED_MATERIAL,
+  PATH_REGION_MATERIAL,
+  RED_LINE_MATERIAL,
+} from "./materials";
 
 const worldBounds = new Box2D(0, 0, 1024, 1024);
 
 const world = World.createRandomWorld({
   worldBounds: worldBounds,
   numberOfBodies: 30,
-  size: 50,
   velocity: 200,
+  size: 50,
 });
 
-const scene = new THREE.Scene();
+const sceneManager = new SceneManager(world);
 
 for (const body of world.bodies) {
-  scene.add(body.indicator);
+  sceneManager.scene.add(body.indicator);
 }
-
-const box = new THREE.BoxGeometry(1, 1, 1);
-const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-const cube = new THREE.Mesh(box, material);
-scene.add(cube);
-
-const camera = new THREE.PerspectiveCamera(
-  75,
-  window.innerWidth / window.innerHeight,
-  0.1,
-  10000
-);
 
 const ground = new THREE.Mesh(
   new THREE.PlaneGeometry(1024, 1024),
@@ -42,27 +38,10 @@ const ground = new THREE.Mesh(
 );
 
 ground.rotation.x = -Math.PI / 2;
-ground.position.y = 0;
+ground.position.y = -2;
 ground.position.x = 512;
 ground.position.z = 512;
-scene.add(ground);
-
-camera.position.set(0, 1000, 1000);
-camera.lookAt(0, 0, 0);
-
-const renderer = new THREE.WebGLRenderer();
-new OrbitControls(camera, renderer.domElement);
-renderer.setSize(window.innerWidth, window.innerHeight);
-
-window.addEventListener("resize", () => {
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
-});
-
-document.body.appendChild(renderer.domElement);
-
-const sceneManager = new SceneManager(world);
+sceneManager.scene.add(ground);
 
 let lastFrameGroup: THREE.Group = new THREE.Group();
 
@@ -100,51 +79,6 @@ function disposeGeometryHierarchy(node: THREE.Object3D) {
   }
 }
 
-const OCCUPIED_MATERIAL = new THREE.MeshBasicMaterial({
-  color: 0x00ff00,
-  side: THREE.BackSide,
-});
-
-const EMPTY_MATERIAL = new THREE.MeshBasicMaterial({
-  color: 0x888888,
-  wireframe: true,
-  side: THREE.BackSide,
-});
-
-const PATH_REGION_MATERIAL = new THREE.MeshBasicMaterial({
-  color: 0xffffff,
-  transparent: true,
-  opacity: 0.3,
-  side: THREE.DoubleSide,
-});
-
-const RED_LINE_MATERIAL = new THREE.LineBasicMaterial({
-  color: 0xff0000,
-});
-
-const BLUE_LINE_MATERIAL = new THREE.LineBasicMaterial({
-  color: 0x0000ff,
-});
-
-const GREEN_LINE_MATERIAL = new THREE.LineBasicMaterial({
-  color: 0x00ff00,
-});
-
-const BASIC_RED_MATERIAL = new THREE.MeshBasicMaterial({
-  color: 0xff0000,
-});
-
-const BASIC_BLUE_MATERIAL = new THREE.MeshBasicMaterial({
-  color: 0x0000ff,
-});
-
-const CELLS_IN_PATH_MATERIAL = new THREE.MeshBasicMaterial({
-  color: 0xccffcc,
-  transparent: true,
-  opacity: 0.5,
-  side: THREE.DoubleSide,
-});
-
 sceneManager.onUpdate = () => {
   const pathfinder = new QuadPathfinder({
     bounds: worldBounds,
@@ -177,7 +111,7 @@ sceneManager.onUpdate = () => {
   disposeGeometryHierarchy(lastFrameGroup);
 
   if (lastFrameGroup) {
-    scene.remove(lastFrameGroup);
+    sceneManager.scene.remove(lastFrameGroup);
   }
 
   // Draw quadtree
@@ -186,13 +120,9 @@ sceneManager.onUpdate = () => {
 
   for (const cell of leaves) {
     if (cell.occupied) {
-      if (settings.showOccupied) {
-        occupiedGeometries.push(...createBoxGeometry(cell.bbox, 2));
-      }
+      occupiedGeometries.push(...cell.bbox.getGeometry());
     } else {
-      if (settings.showEmpty) {
-        emptyGeometries.push(...createBoxGeometry(cell.bbox, 2));
-      }
+      emptyGeometries.push(...cell.bbox.getGeometry());
     }
   }
 
@@ -239,7 +169,9 @@ sceneManager.onUpdate = () => {
     smothPathSpheres.position.y = 10;
     lastFrameGroup.add(smothPathSpheres);
   }
+
   const PATH_REGION_Y = 15;
+
   if (settings.showPathRegions && portals) {
     const pathRegionGeometries = [];
     for (let i = 0; i < portals.length - 1; i++) {
@@ -288,6 +220,7 @@ sceneManager.onUpdate = () => {
       pathRegionGeometry,
       PATH_REGION_MATERIAL
     );
+
     lastFrameGroup.add(pathRegionMesh);
   }
 
@@ -295,7 +228,7 @@ sceneManager.onUpdate = () => {
     const rightLinePoints = [];
     const leftLinePoints = [];
     const rightToLeftLinePoints = [];
-    // Draw portals
+
     for (let i = 0; i < portals.length - 1; i++) {
       const startRight = portals[i].right;
       const endRight = portals[i + 1].right;
@@ -307,26 +240,20 @@ sceneManager.onUpdate = () => {
         new THREE.Vector3(startRight.x, PATH_REGION_Y, startRight.y),
         new THREE.Vector3(endRight.x, PATH_REGION_Y, endRight.y)
       );
+
       leftLinePoints.push(
         new THREE.Vector3(startLeft.x, PATH_REGION_Y, startLeft.y),
         new THREE.Vector3(endLeft.x, PATH_REGION_Y, endLeft.y)
       );
+
       rightToLeftLinePoints.push(
         new THREE.Vector3(startLeft.x, PATH_REGION_Y, startLeft.y),
         new THREE.Vector3(startRight.x, PATH_REGION_Y, startRight.y),
         new THREE.Vector3(endRight.x, PATH_REGION_Y, endRight.y),
         new THREE.Vector3(endLeft.x, PATH_REGION_Y, endLeft.y)
       );
-      // const rightToLeftLine = new THREE.Line(
-      //   new THREE.BufferGeometry().setFromPoints([
-      //     new THREE.Vector3(startRight.x, 30, startRight.y),
-      //     new THREE.Vector3(startLeft.x, 30, startLeft.y),
-      //   ]),
-      //   GREEN_LINE_MATERIAL
-      // );
-
-      // lastFrameGroup.add(rightToLeftLine);
     }
+
     const rightLine = new THREE.Line(
       new THREE.BufferGeometry().setFromPoints(rightLinePoints),
       GREEN_LINE_MATERIAL
@@ -350,8 +277,9 @@ sceneManager.onUpdate = () => {
   // Draw cells in path
   if (pathCells) {
     const cellsInPathGeometries: number[] = [];
+
     for (const cell of pathCells) {
-      cellsInPathGeometries.push(...createBoxGeometry(cell.bbox, 2));
+      cellsInPathGeometries.push(...cell.bbox.getGeometry());
     }
 
     const cellsInPathGeometry = new THREE.BufferGeometry();
@@ -368,41 +296,8 @@ sceneManager.onUpdate = () => {
 
     lastFrameGroup.add(cellsInPathMesh);
   }
-  scene.add(lastFrameGroup);
 
-  renderer.render(scene, camera);
+  sceneManager.scene.add(lastFrameGroup);
 };
-
-function drawPathLine(
-  path: Vector2[],
-  material: THREE.LineBasicMaterial
-): THREE.Line {
-  const y = 10;
-  const pathPoints = [];
-
-  for (let i = 0; i < path.length; i++) {
-    pathPoints.push(new THREE.Vector3(path[i].x, y, path[i].y));
-  }
-
-  const pathGeometry = new THREE.BufferGeometry().setFromPoints(pathPoints);
-  const line = new THREE.Line(pathGeometry, material);
-  return line;
-}
-
-function drawPathPoints(path: Vector2[], material: THREE.Material): THREE.Mesh {
-  const geometries = [];
-  const y = 10;
-  const SIZE = 5;
-
-  for (let i = 0; i < path.length; i++) {
-    const BOX_INDICATOR = new THREE.BoxGeometry(SIZE, SIZE, SIZE);
-    geometries.push(BOX_INDICATOR.translate(path[i].x, y, path[i].y));
-  }
-
-  const geometry = BufferGeometryUtils.mergeGeometries(geometries);
-  const mesh = new THREE.Mesh(geometry, material);
-
-  return mesh;
-}
 
 sceneManager.start();

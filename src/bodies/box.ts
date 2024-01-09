@@ -11,8 +11,8 @@ export class BoxBody implements Obstacle, Body {
   indicator: THREE.Mesh;
 
   constructor({ velocity, box }: { velocity: Vector2; box: Box2D }) {
-    this.velocity = velocity;
     this.box = box;
+    this.velocity = velocity;
     this.position = new Vector2(box.minX, box.minY);
     this.indicator = createBoxIndicator(box);
   }
