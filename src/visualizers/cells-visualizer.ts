@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { CellDecomposition } from "../cell-decomposition";
+import { NavQuadtree } from "../pathfinding/nav-quadtree";
 import { EMPTY_MATERIAL, OCCUPIED_MATERIAL } from "../materials";
 
 export class CellsVisualizer {
@@ -18,7 +18,7 @@ export class CellsVisualizer {
     this.scene.add(this.occupiedMeshes);
   }
 
-  update(cells: CellDecomposition[]) {
+  update(cells: NavQuadtree[]) {
     const occupiedGeometries: number[] = [];
     const emptyGeometries: number[] = [];
 

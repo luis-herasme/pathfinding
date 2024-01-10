@@ -3,9 +3,9 @@ import { QuadGraph } from "./quad-graph";
 import { aStar } from "./a-star";
 import { Vector2 } from "three";
 import { funnelPathSmoothing } from "./funnel";
-import { CellDecomposition, PathfindingObstacle } from "../cell-decomposition";
+import { NavQuadtree, PathfindingObstacle } from "./nav-quadtree";
 
-function getPortals(path: CellDecomposition[]): {
+function getPortals(path: NavQuadtree[]): {
   left: Vector2;
   right: Vector2;
 }[] {
@@ -100,8 +100,8 @@ export class QuadPathfinder {
       y: number;
     };
   }) {
-    const cells = new Map<number, CellDecomposition>();
-    const root = new CellDecomposition({
+    const cells = new Map<number, NavQuadtree>();
+    const root = new NavQuadtree({
       bbox: this.bounds,
       cells,
       depth: 0,

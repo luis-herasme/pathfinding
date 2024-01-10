@@ -1,4 +1,4 @@
-import { Box2D } from "./box";
+import { Box2D } from "../box";
 import { Vector2 } from "three";
 
 export interface PathfindingObstacle {
@@ -23,7 +23,7 @@ function interleaveBits(x: number, y: number): number {
   return result;
 }
 
-export class CellDecomposition {
+export class NavQuadtree {
   bbox: Box2D;
   occupied: boolean = false;
   center: Vector2;
@@ -31,13 +31,13 @@ export class CellDecomposition {
   depth: number = 0;
   private maxDepth: number;
   private divided: boolean = false;
-  private cells: Map<number, CellDecomposition>;
+  private cells: Map<number, NavQuadtree>;
 
   // Children
-  private topLeft: CellDecomposition | null = null;
-  private topRight: CellDecomposition | null = null;
-  private bottomLeft: CellDecomposition | null = null;
-  private bottomRight: CellDecomposition | null = null;
+  private topLeft: NavQuadtree | null = null;
+  private topRight: NavQuadtree | null = null;
+  private bottomLeft: NavQuadtree | null = null;
+  private bottomRight: NavQuadtree | null = null;
 
   constructor({
     bbox,
@@ -46,7 +46,7 @@ export class CellDecomposition {
     maxDepth,
   }: {
     bbox: Box2D;
-    cells: Map<number, CellDecomposition>;
+    cells: Map<number, NavQuadtree>;
     depth: number;
     maxDepth: number;
   }) {
@@ -63,7 +63,7 @@ export class CellDecomposition {
   }
 
   // Get the leave that contains the given point
-  getLeaf(point: { x: number; y: number }): CellDecomposition | null {
+  getLeaf(point: { x: number; y: number }): NavQuadtree | null {
     if (!this.bbox.containsPoint(point)) {
       return null;
     }
@@ -107,7 +107,7 @@ export class CellDecomposition {
     return null;
   }
 
-  getLeaves(leaves: CellDecomposition[] = []) {
+  getLeaves(leaves: NavQuadtree[] = []) {
     // Check if this is a leaf
     if (!this.divided) {
       leaves.push(this);
@@ -132,7 +132,7 @@ export class CellDecomposition {
     return leaves;
   }
 
-  getRegion(bbox: Box2D, cells: CellDecomposition[]) {
+  getRegion(bbox: Box2D, cells: NavQuadtree[]) {
     if (!this.bbox.collideWithBox(bbox)) {
       return;
     }
@@ -165,7 +165,7 @@ export class CellDecomposition {
     const width = this.bbox.width / 2;
     const height = this.bbox.height / 2;
 
-    this.topLeft = new CellDecomposition({
+    this.topLeft = new NavQuadtree({
       bbox: new Box2D(
         this.bbox.minX,
         this.bbox.minY,
@@ -177,7 +177,7 @@ export class CellDecomposition {
       maxDepth: this.maxDepth,
     });
 
-    this.topRight = new CellDecomposition({
+    this.topRight = new NavQuadtree({
       bbox: new Box2D(
         this.bbox.minX + width,
         this.bbox.minY,
@@ -189,7 +189,7 @@ export class CellDecomposition {
       maxDepth: this.maxDepth,
     });
 
-    this.bottomLeft = new CellDecomposition({
+    this.bottomLeft = new NavQuadtree({
       bbox: new Box2D(
         this.bbox.minX,
         this.bbox.minY + height,
@@ -201,7 +201,7 @@ export class CellDecomposition {
       maxDepth: this.maxDepth,
     });
 
-    this.bottomRight = new CellDecomposition({
+    this.bottomRight = new NavQuadtree({
       bbox: new Box2D(
         this.bbox.minX + width,
         this.bbox.minY + height,

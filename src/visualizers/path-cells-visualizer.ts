@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { CELLS_IN_PATH_MATERIAL } from "../materials";
-import { CellDecomposition } from "../cell-decomposition";
+import { NavQuadtree } from "../pathfinding/nav-quadtree";
 
 export class PathCellsVisualizer {
   public scene = new THREE.Mesh();
@@ -9,7 +9,7 @@ export class PathCellsVisualizer {
     this.scene.material = CELLS_IN_PATH_MATERIAL;
   }
 
-  update(cells: CellDecomposition[]) {
+  update(cells: NavQuadtree[]) {
     const cellsInPathGeometries: number[] = [];
     const cellsInPathGeometry = new THREE.BufferGeometry();
 

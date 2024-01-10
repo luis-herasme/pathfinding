@@ -1,6 +1,6 @@
 import { Box2D } from "../box";
 import { Vector2 } from "three";
-import { PathfindingObstacle } from "../cell-decomposition";
+import { PathfindingObstacle } from "../pathfinding/nav-quadtree";
 import { createCylinderIndicator } from "../render";
 
 export class CircleBody implements PathfindingObstacle {

@@ -1,14 +1,14 @@
 import { Box2D } from "../box";
 import { Vector2 } from "three";
-import { CellDecomposition } from "../cell-decomposition";
+import { NavQuadtree } from "./nav-quadtree";
 import { Node, PathfindingGraph } from "./pathfinding-graph";
 
 export class QuadGraph implements PathfindingGraph<number, Vector2> {
   nodes: Map<number, Node<number, Vector2>>;
-  private cells: Map<number, CellDecomposition>;
-  private root: CellDecomposition;
+  private cells: Map<number, NavQuadtree>;
+  private root: NavQuadtree;
 
-  constructor(root: CellDecomposition, cells: Map<number, CellDecomposition>) {
+  constructor(root: NavQuadtree, cells: Map<number, NavQuadtree>) {
     this.nodes = new Map();
     this.cells = cells;
     this.root = root;
@@ -68,7 +68,7 @@ export class QuadGraph implements PathfindingGraph<number, Vector2> {
       bbox.maxY + 1
     );
 
-    const neighborCells: CellDecomposition[] = [];
+    const neighborCells: NavQuadtree[] = [];
     this.root.getRegion(neighborsBoxLeft, neighborCells);
     this.root.getRegion(neighborsBoxTop, neighborCells);
     this.root.getRegion(neighborsBoxRight, neighborCells);
