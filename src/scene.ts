@@ -1,5 +1,5 @@
 import Stats from "stats.js";
-import { World } from "./bodies/world";
+import { World } from "./world/world";
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 

@@ -1,4 +1,4 @@
-import { World } from "./bodies/world";
+import { World } from "./world/world";
 import { QuadPathfinder } from "./pathfinding/quad-pathfinder";
 import { SceneManager } from "./scene";
 import { Box2D } from "./box";
