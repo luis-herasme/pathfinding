@@ -13,6 +13,10 @@ function getPortals(path: CellDecomposition[]): {
     left: Vector2;
     right: Vector2;
   }[] = [];
+  portals.push({
+    left: path[0].bbox.center,
+    right: path[0].bbox.center,
+  });
 
   for (let i = 0; i < path.length - 1; i++) {
     const sharedEdge = getSharedEdge(path[i].bbox, path[i + 1].bbox);
@@ -115,7 +119,10 @@ export class QuadPathfinder {
     if (!startCell || !endCell || startCell.occupied || endCell.occupied) {
       return {
         leaves: root.getLeaves(),
-        pathData: null,
+        path: null,
+        smothPath: null,
+        portals: null,
+        pathCells: null,
       };
     }
 
@@ -129,7 +136,10 @@ export class QuadPathfinder {
     if (!path) {
       return {
         leaves: root.getLeaves(),
-        pathData: null,
+        path: null,
+        smothPath: null,
+        portals: null,
+        pathCells: null,
       };
     }
 
@@ -140,7 +150,10 @@ export class QuadPathfinder {
     if (portals.length === 0) {
       return {
         leaves: root.getLeaves(),
-        pathData: null,
+        path: null,
+        smothPath: null,
+        portals: null,
+        pathCells: null,
       };
     }
 
@@ -156,12 +169,10 @@ export class QuadPathfinder {
 
     return {
       leaves: root.getLeaves(),
-      pathData: {
-        path: pathResult,
-        smothPath,
-        portals,
-        pathCells,
-      },
+      path: pathResult,
+      smothPath,
+      portals,
+      pathCells,
     };
   }
 }

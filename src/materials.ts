@@ -12,9 +12,9 @@ export const EMPTY_MATERIAL = new THREE.MeshBasicMaterial({
 });
 
 export const PATH_REGION_MATERIAL = new THREE.MeshBasicMaterial({
-  color: 0xffffff,
+  color: 0x88aa88,
   transparent: true,
-  opacity: 0.3,
+  opacity: 0.8,
   side: THREE.DoubleSide,
 });
 
@@ -39,8 +39,6 @@ export const BASIC_BLUE_MATERIAL = new THREE.MeshBasicMaterial({
 });
 
 export const CELLS_IN_PATH_MATERIAL = new THREE.MeshBasicMaterial({
-  color: 0xccffcc,
-  transparent: true,
-  opacity: 0.5,
+  color: 0x668866,
   side: THREE.DoubleSide,
 });
