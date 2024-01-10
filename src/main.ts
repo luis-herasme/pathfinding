@@ -1,5 +1,5 @@
 import { World } from "./bodies/world";
-import { QuadPathfinder } from "./quad-pathfinder";
+import { QuadPathfinder } from "./pathfinding/quad-pathfinder";
 import { SceneManager } from "./scene";
 import { Box2D } from "./box";
 import {

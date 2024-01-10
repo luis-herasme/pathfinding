@@ -1,7 +1,7 @@
-import { Box2D } from "./box";
+import { Box2D } from "../box";
 import { Vector2 } from "three";
-import { CellDecomposition } from "./cell-decomposition";
-import { Node, PathfindingGraph } from "./pathfinding/pathfinding-graph";
+import { CellDecomposition } from "../cell-decomposition";
+import { Node, PathfindingGraph } from "./pathfinding-graph";
 
 export class QuadGraph implements PathfindingGraph<number, Vector2> {
   nodes: Map<number, Node<number, Vector2>>;
@@ -25,10 +25,9 @@ export class QuadGraph implements PathfindingGraph<number, Vector2> {
       return null;
     }
 
-    const neighbors = this.getNeighbors(cell.bbox);
+    const neighbors = this.getFreeNeighbors(cell.bbox);
 
     const node = {
-      visited: false,
       position: cell.bbox.center,
       neighbors,
     };
@@ -37,7 +36,7 @@ export class QuadGraph implements PathfindingGraph<number, Vector2> {
     return node;
   }
 
-  private getNeighbors(bbox: Box2D): {
+  private getFreeNeighbors(bbox: Box2D): {
     nodeId: number;
     weight: number;
   }[] {
