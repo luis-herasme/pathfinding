@@ -1,7 +1,7 @@
 import { Box2D } from "../box";
 import { Vector2 } from "three";
 import { PathfindingObstacle } from "../pathfinding/nav-quadtree";
-import { createBoxIndicator } from "../render";
+import { createBoxIndicator } from "../visualizers/basic-indicators";
 
 export class BoxBody implements PathfindingObstacle {
   box: Box2D;

@@ -1,4 +1,4 @@
-import { Box2D } from "./box";
+import { Box2D } from "../box";
 import * as THREE from "three";
 
 export function createBoxIndicator(box: Box2D): THREE.Mesh {
