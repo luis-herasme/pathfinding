@@ -1,19 +1,28 @@
 import { Box2D } from "../box";
 import { Vector2 } from "three";
-import { Body } from "./world";
 import { PathfindingObstacle } from "../cell-decomposition";
 import { createBoxIndicator } from "../render";
 
-export class BoxBody implements PathfindingObstacle, Body {
+export class BoxBody implements PathfindingObstacle {
   box: Box2D;
   velocity: Vector2;
   position: Vector2;
   indicator: THREE.Mesh;
+  worldBounds: Box2D;
 
-  constructor({ velocity, box }: { velocity: Vector2; box: Box2D }) {
+  constructor({
+    velocity,
+    box,
+    worldBounds,
+  }: {
+    velocity: Vector2;
+    box: Box2D;
+    worldBounds: Box2D;
+  }) {
     this.box = box;
     this.velocity = velocity;
     this.position = new Vector2(box.minX, box.minY);
+    this.worldBounds = worldBounds;
     this.indicator = createBoxIndicator(box);
   }
 
@@ -21,6 +30,7 @@ export class BoxBody implements PathfindingObstacle, Body {
     this.position.add(this.velocity.clone().multiplyScalar(dt));
     this.box.setPosition(this.position.x, this.position.y);
     this.indicator.position.set(this.position.x, 1, this.position.y);
+    this.collideWithWorldBounds(this.worldBounds);
   }
 
   collideWithBox(box: Box2D) {
@@ -31,7 +41,7 @@ export class BoxBody implements PathfindingObstacle, Body {
     return this.box.containsBox(box);
   }
 
-  collideWithWorldBounds(worldBounds: Box2D) {
+  private collideWithWorldBounds(worldBounds: Box2D) {
     if (this.box.minX + this.box.width > worldBounds.maxX) {
       this.velocity.x *= -1;
       this.box.minX = worldBounds.maxX - this.box.width;

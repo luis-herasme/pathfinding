@@ -1,39 +1,20 @@
 import { Box2D } from "../box";
-import { PathfindingObstacle } from "../cell-decomposition";
 import { Vector2 } from "three";
 import { BoxBody } from "./box";
 import { CircleBody } from "./circle";
 
-export type Body = {
-  update(dt: number): void;
-  indicator: THREE.Object3D;
-  collideWithWorldBounds(worldBounds: Box2D): void;
-} & PathfindingObstacle;
+export type Entity = BoxBody | CircleBody;
 
 export class World {
-  bodies: Body[] = [];
-  private worldBounds: Box2D;
+  entities: Entity[] = [];
 
-  constructor({ worldBounds, bodies }: { worldBounds: Box2D; bodies: Body[] }) {
-    this.bodies = bodies;
-    this.worldBounds = worldBounds;
-  }
-
-  addBody(body: Body) {
-    this.bodies.push(body);
+  constructor({ entities }: { entities: Entity[] }) {
+    this.entities = entities;
   }
 
   update(dt: number) {
-    for (let i = 0; i < this.bodies.length; i++) {
-      this.bodies[i].update(dt);
-    }
-
-    this.checkThatBodyIsInsideWorldBounds();
-  }
-
-  private checkThatBodyIsInsideWorldBounds() {
-    for (let i = 0; i < this.bodies.length; i++) {
-      this.bodies[i].collideWithWorldBounds(this.worldBounds);
+    for (let i = 0; i < this.entities.length; i++) {
+      this.entities[i].update(dt);
     }
   }
 
@@ -48,14 +29,14 @@ export class World {
     size: number;
     velocity: number;
   }) {
-    const bodies: Body[] = [];
+    const entities: Entity[] = [];
 
     for (let i = 0; i < numberOfBodies; i++) {
       const x = size + Math.random() * (worldBounds.maxX - 2 * size);
       const y = size + Math.random() * (worldBounds.maxY - 2 * size);
 
       if (Math.random() > 0.5) {
-        bodies.push(
+        entities.push(
           new BoxBody({
             velocity: new Vector2(
               velocity * (Math.random() - 0.5),
@@ -67,10 +48,11 @@ export class World {
               x + size / 2 + (Math.random() * size) / 2,
               y + size / 2 + (Math.random() * size) / 2
             ),
+            worldBounds,
           })
         );
       } else {
-        bodies.push(
+        entities.push(
           new CircleBody({
             velocity: new Vector2(
               velocity * (Math.random() - 0.5),
@@ -78,11 +60,12 @@ export class World {
             ),
             radius: size / 2 + (Math.random() * size) / 2,
             position: new Vector2(x, y),
+            worldBounds,
           })
         );
       }
     }
 
-    return new World({ worldBounds, bodies });
+    return new World({ entities });
   }
 }

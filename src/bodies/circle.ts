@@ -1,27 +1,30 @@
 import { Box2D } from "../box";
 import { Vector2 } from "three";
-import { Body } from "./world";
 import { PathfindingObstacle } from "../cell-decomposition";
 import { createCylinderIndicator } from "../render";
 
-export class CircleBody implements PathfindingObstacle, Body {
+export class CircleBody implements PathfindingObstacle {
   radius: number;
   position: Vector2;
   velocity: Vector2;
   indicator: THREE.Mesh;
+  worldBounds: Box2D;
 
   constructor({
     radius,
     position,
     velocity,
+    worldBounds,
   }: {
     radius: number;
     position: Vector2;
     velocity: Vector2;
+    worldBounds: Box2D;
   }) {
     this.radius = radius;
     this.position = position;
     this.velocity = velocity;
+    this.worldBounds = worldBounds;
     this.indicator = createCylinderIndicator(radius);
   }
 
@@ -65,7 +68,7 @@ export class CircleBody implements PathfindingObstacle, Body {
     return true;
   }
 
-  collideWithWorldBounds(worldBounds: Box2D): void {
+  private collideWithWorldBounds(worldBounds: Box2D): void {
     if (this.position.x + this.radius > worldBounds.maxX) {
       this.velocity.x *= -1;
       this.position.x = worldBounds.maxX - this.radius;
@@ -90,5 +93,7 @@ export class CircleBody implements PathfindingObstacle, Body {
   update(dt: number) {
     this.position.add(this.velocity.clone().multiplyScalar(dt));
     this.indicator.position.set(this.position.x, 1, this.position.y);
+
+    this.collideWithWorldBounds(this.worldBounds);
   }
 }

@@ -25,8 +25,8 @@ const world = World.createRandomWorld({
 
 const sceneManager = new SceneManager(world);
 
-for (const body of world.bodies) {
-  sceneManager.scene.add(body.indicator);
+for (const entity of world.entities) {
+  sceneManager.scene.add(entity.indicator);
 }
 
 const settings = {
@@ -109,7 +109,7 @@ gui
 sceneManager.onUpdate = () => {
   const pathfinder = new QuadPathfinder({
     bounds: worldBounds,
-    obstacles: world.bodies,
+    obstacles: world.entities,
     maxDepth: settings.maxDepth,
   });
 
