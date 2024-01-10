@@ -8,10 +8,10 @@ import {
   BLUE_LINE_MATERIAL,
   RED_LINE_MATERIAL,
 } from "./materials";
-import { PathLineVisualizer } from "./path-line-visualizer";
-import { CellsVisualizer } from "./cells-visualizer";
-import { PathCellsVisualizer } from "./path-cells-visualizer";
-import { PortalsVisualizer } from "./portals-visualizer";
+import { PathLineVisualizer } from "./visualizers/path-line-visualizer";
+import { CellsVisualizer } from "./visualizers/cells-visualizer";
+import { PathCellsVisualizer } from "./visualizers/path-cells-visualizer";
+import { PortalsVisualizer } from "./visualizers/portals-visualizer";
 import GUI from "three/examples/jsm/libs/lil-gui.module.min.js";
 
 const worldBounds = new Box2D(0, 0, 1024, 1024);

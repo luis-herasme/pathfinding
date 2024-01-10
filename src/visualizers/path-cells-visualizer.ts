@@ -1,6 +1,6 @@
 import * as THREE from "three";
-import { CELLS_IN_PATH_MATERIAL } from "./materials";
-import { CellDecomposition } from "./cell-decomposition";
+import { CELLS_IN_PATH_MATERIAL } from "../materials";
+import { CellDecomposition } from "../cell-decomposition";
 
 export class PathCellsVisualizer {
   public scene = new THREE.Mesh();

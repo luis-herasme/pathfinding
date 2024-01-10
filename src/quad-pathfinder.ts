@@ -2,7 +2,7 @@ import { Box2D } from "./box";
 import { QuadGraph } from "./quad-graph";
 import { aStar } from "./pathfinding/a-star";
 import { Vector2 } from "three";
-import { funnelPathSmoothing } from "./funnel";
+import { funnelPathSmoothing } from "./pathfinding/funnel";
 import { CellDecomposition, Obstacle } from "./cell-decomposition";
 
 function getPortals(path: CellDecomposition[]): {

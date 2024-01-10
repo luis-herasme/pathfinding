@@ -1,6 +1,6 @@
 import * as THREE from "three";
-import { CellDecomposition } from "./cell-decomposition";
-import { EMPTY_MATERIAL, OCCUPIED_MATERIAL } from "./materials";
+import { CellDecomposition } from "../cell-decomposition";
+import { EMPTY_MATERIAL, OCCUPIED_MATERIAL } from "../materials";
 
 export class CellsVisualizer {
   public scene = new THREE.Group();

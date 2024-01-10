@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { GREEN_LINE_MATERIAL, PATH_REGION_MATERIAL } from "./materials";
+import { GREEN_LINE_MATERIAL, PATH_REGION_MATERIAL } from "../materials";
 
 export class PortalsVisualizer {
   public scene = new THREE.Group();
