@@ -42,8 +42,8 @@ export class CellDecomposition {
   constructor({
     bbox,
     cells,
-    depth = 0,
-    maxDepth = 8,
+    depth,
+    maxDepth,
   }: {
     bbox: Box2D;
     cells: Map<number, CellDecomposition>;

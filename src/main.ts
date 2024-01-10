@@ -19,7 +19,7 @@ const worldBounds = new Box2D(0, 0, 1024, 1024);
 const world = World.createRandomWorld({
   worldBounds: worldBounds,
   numberOfBodies: 30,
-  velocity: 20,
+  velocity: 200,
   size: 50,
 });
 
@@ -33,8 +33,8 @@ const settings = {
   showGrid: true,
   showPath: true,
   showSmothPath: true,
-  showPathRegions: true,
   showPortals: true,
+  showPathCells: true,
   maxDepth: 6,
 };
 
@@ -86,17 +86,17 @@ gui
   });
 
 gui
-  .add(settings, "showPathRegions")
-  .name("Show path region")
-  .onChange((value) => {
-    pathCellsVisualizer.scene.visible = value;
-  });
-
-gui
   .add(settings, "showPortals")
   .name("Show portals")
   .onChange((value) => {
     portalsVisualizer.scene.visible = value;
+  });
+
+gui
+  .add(settings, "showPathCells")
+  .name("Show path quads")
+  .onChange((value) => {
+    pathCellsVisualizer.scene.visible = value;
   });
 
 gui
@@ -138,11 +138,11 @@ sceneManager.onUpdate = () => {
     smothPathVisualizer.update(smothPath);
   }
 
-  if (settings.showPathRegions && portals) {
+  if (settings.showPortals && portals) {
     portalsVisualizer.update(portals);
   }
 
-  if (pathCells) {
+  if (settings.showPathCells && pathCells) {
     pathCellsVisualizer.update(pathCells);
   }
 };
