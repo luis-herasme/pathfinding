@@ -1,10 +1,10 @@
 import { Box2D } from "../box";
 import { Vector2 } from "three";
 import { Body } from "./world";
-import { Obstacle } from "../cell-decomposition";
+import { PathfindingObstacle } from "../cell-decomposition";
 import { createCylinderIndicator } from "../render";
 
-export class CircleBody implements Obstacle, Body {
+export class CircleBody implements PathfindingObstacle, Body {
   radius: number;
   position: Vector2;
   velocity: Vector2;

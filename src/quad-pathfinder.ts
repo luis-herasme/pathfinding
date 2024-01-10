@@ -3,7 +3,7 @@ import { QuadGraph } from "./quad-graph";
 import { aStar } from "./pathfinding/a-star";
 import { Vector2 } from "three";
 import { funnelPathSmoothing } from "./pathfinding/funnel";
-import { CellDecomposition, Obstacle } from "./cell-decomposition";
+import { CellDecomposition, PathfindingObstacle } from "./cell-decomposition";
 
 function getPortals(path: CellDecomposition[]): {
   left: Vector2;
@@ -70,7 +70,7 @@ function getSharedEdge(
 
 export class QuadPathfinder {
   private maxDepth: number;
-  private obstacles: Obstacle[];
+  private obstacles: PathfindingObstacle[];
   private bounds: Box2D;
 
   constructor({
@@ -78,7 +78,7 @@ export class QuadPathfinder {
     bounds,
     maxDepth,
   }: {
-    obstacles: Obstacle[];
+    obstacles: PathfindingObstacle[];
     bounds: Box2D;
     maxDepth: number;
   }) {

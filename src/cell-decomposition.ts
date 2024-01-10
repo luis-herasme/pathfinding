@@ -1,7 +1,7 @@
 import { Box2D } from "./box";
 import { Vector2 } from "three";
 
-export interface Obstacle {
+export interface PathfindingObstacle {
   collideWithBox(box: Box2D): boolean;
   completelyContainsBox(box: Box2D): boolean;
 }
@@ -59,7 +59,7 @@ export class CellDecomposition {
   }
 
   getID(): number {
-    return interleaveBits(this.bbox.center.x * 100, this.bbox.center.y * 100);
+    return interleaveBits(this.bbox.center.x, this.bbox.center.y);
   }
 
   // Get the leave that contains the given point
@@ -214,7 +214,7 @@ export class CellDecomposition {
     });
   }
 
-  insert(item: Obstacle) {
+  insert(item: PathfindingObstacle) {
     if (this.occupied) {
       return;
     }

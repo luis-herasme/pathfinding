@@ -1,5 +1,5 @@
 import { Box2D } from "../box";
-import { Obstacle } from "../cell-decomposition";
+import { PathfindingObstacle } from "../cell-decomposition";
 import { Vector2 } from "three";
 import { BoxBody } from "./box";
 import { CircleBody } from "./circle";
@@ -8,19 +8,13 @@ export type Body = {
   update(dt: number): void;
   indicator: THREE.Object3D;
   collideWithWorldBounds(worldBounds: Box2D): void;
-} & Obstacle;
+} & PathfindingObstacle;
 
 export class World {
   bodies: Body[] = [];
   private worldBounds: Box2D;
 
-  constructor({
-    worldBounds,
-    bodies,
-  }: {
-    worldBounds: Box2D;
-    bodies: Body[];
-  }) {
+  constructor({ worldBounds, bodies }: { worldBounds: Box2D; bodies: Body[] }) {
     this.bodies = bodies;
     this.worldBounds = worldBounds;
   }
@@ -30,11 +24,11 @@ export class World {
   }
 
   update(dt: number) {
-    this.checkThatBodyIsInsideWorldBounds();
-
     for (let i = 0; i < this.bodies.length; i++) {
       this.bodies[i].update(dt);
     }
+
+    this.checkThatBodyIsInsideWorldBounds();
   }
 
   private checkThatBodyIsInsideWorldBounds() {
